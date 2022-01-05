@@ -1,0 +1,28 @@
+{
+  "name": "waddle",
+  "description": "",
+  "version": "0.1.0",
+  "private": false,
+  "homepage": "https://githu.com/maxbarsbukov/waddle",
+  "author": "Max Barsukov",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxbarsukov/waddle.git"
+  },
+  "bugs": {
+    "url": "https://github.com/maxbarsukov/waddle/issues"
+  },
+  "main": "build/index.js",
+  "scripts": {
+    "build": "babel src --source-maps --out-dir build",
+  },
+  "dependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "readline-sync": "^1.4.10"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "mocha": "^9.1.3"
+  },
+  "license": "MIT"
+}
