@@ -16,7 +16,8 @@
   "scripts": {
     "build": "babel src --source-maps --out-dir build",
     "lint": "eslint --ext js,json src",
-    "lint:fix": "eslint --ext js,json --fix src"
+    "lint:fix": "eslint --ext js,json --fix src",
+    "test": "mocha --recursive build/__test__/"
   },
   "dependencies": {
     "babel-preset-es2015": "^6.24.1",
@@ -26,7 +27,7 @@
     "babel-cli": "^6.26.0",
     "eslint": "8.6.0",
     "eslint-config-airbnb": "19.0.4",
-    "eslint-plugin-jest": "25.3.4",
+    "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-optimize-regex": "1.2.1",
     "eslint-plugin-promise": "6.0.0",
     "mocha": "^9.1.3"
