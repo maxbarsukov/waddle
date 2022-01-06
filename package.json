@@ -35,7 +35,6 @@
     "build:esm": "tsc -p tsconfig.esm.json",
     "start": "ts-node src/cli/index.ts",
     "test": "jest",
-    "start": "ts-node src/cli/index.ts",
     "lint": "eslint --ext ts,json src",
     "lint:fix": "eslint --ext ts,json --fix src"
   },
