@@ -35,19 +35,19 @@
     "build:esm": "tsc -p tsconfig.esm.json",
     "test": "jest",
     "start": "ts-node src/cli/index.ts",
-    "lint": "eslint --ext js,json src",
-    "lint:fix": "eslint --ext js,json --fix src"
+    "lint": "eslint --ext ts,json src",
+    "lint:fix": "eslint --ext ts,json --fix src"
   },
   "dependencies": {
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {
+    "@types/jest": "^27.4.0",
     "@types/node": "^17.0.8",
-    "eslint": "8.6.0",
-    "eslint-config-airbnb": "19.0.4",
-    "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-optimize-regex": "1.2.1",
-    "eslint-plugin-promise": "6.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.9.0",
+    "@typescript-eslint/parser": "^5.9.0",
+    "eslint": "^8.6.0",
+    "eslint-config-airbnb-typescript": "^16.1.0",
     "jest": "^27.4.7",
     "rimraf": "^3.0.2",
     "ts-jest": "^27.1.2",

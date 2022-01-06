@@ -1,20 +1,17 @@
 module.exports = {
-  env: {
-    es2021: true,
-    node: true,
+  root: true,
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: ['./tsconfig.json'],
   },
+
   extends: [
     'airbnb-base',
+    'airbnb-typescript/base',
   ],
   plugins: [
-    'import',
-    'optimize-regex',
-    'promise',
+    '@typescript-eslint',
   ],
-  parserOptions: {
-    ecmaVersion: 13,
-    sourceType: 'module',
-  },
   rules: {
     'linebreak-style': 'off',
     'arrow-parens': 'off',
@@ -37,8 +34,7 @@ module.exports = {
     'space-before-function-paren': 0,
     'no-underscore-dangle': 'warn',
     'max-len': ['warn', 100, 2, { ignoreUrls: true }],
-    'no-console': 'warn',
-    'no-alert': 'warn',
+    'no-console': 'off',
     'no-param-reassign': 'off',
     'prefer-destructuring': 'off',
     'operator-linebreak': 'off',
