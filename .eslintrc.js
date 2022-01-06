@@ -38,6 +38,7 @@ module.exports = {
     'no-param-reassign': 'off',
     'prefer-destructuring': 'off',
     'operator-linebreak': 'off',
+    'class-methods-use-this': 'off',
     '@typescript-eslint/lines-between-class-members': 'off',
   },
 };
