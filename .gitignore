@@ -13,7 +13,8 @@
 /coverage
 
 # build
-/build
+/lib
+/lib-esm
 
 # misc
 .DS_Store
