@@ -1,17 +1,17 @@
+import Position from '../interfaces/Position';
+
 export default class Token {
   type: string;
   value: string;
-  line: number;
-  column: number;
+  pos: Position;
 
-  constructor(type: string, value: string, line: number, column: number) {
+  constructor(type: string, value: string, pos: Position) {
     this.type = type;
     this.value = value;
-    this.line = line;
-    this.column = column;
+    this.pos = pos;
   }
 
   toString(): string {
-    return `<${this.type}, ${this.value}, ${this.line}:${this.column}>`;
+    return `<${this.type}, ${this.value}, ${this.pos.line}:${this.pos.column}>`;
   }
 }
