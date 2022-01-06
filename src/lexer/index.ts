@@ -57,18 +57,9 @@ export default class Lexer {
 
     const symbol = this.input.charAt(this.position);
 
-    if (CharUtils.isBeginningOfLiteral(symbol)) {
-      return this.recognizeLiteral();
-    }
-
-    if (CharUtils.isOperator(symbol)) {
-      return this.recognizeOperator();
-    }
-
-    if (CharUtils.isDelimiter(symbol)) {
-      return this.recognizeDelimiter();
-    }
-
+    if (CharUtils.isBeginningOfLiteral(symbol)) return this.recognizeLiteral();
+    if (CharUtils.isOperator(symbol)) return this.recognizeOperator();
+    if (CharUtils.isDelimiter(symbol)) return this.recognizeDelimiter();
     if (CharUtils.isDot(symbol)) {
       const column = this.column;
 
@@ -95,21 +86,10 @@ export default class Lexer {
   recognizeLiteral() {
     const symbol = this.input.charAt(this.position);
 
-    if (CharUtils.isLetter(symbol)) {
-      return this.recognizeKeywordOrIdentifier();
-    }
-
-    if (CharUtils.isBeginningOfIdentifier(symbol)) {
-      return this.recognizeIdentifier();
-    }
-
-    if (CharUtils.isBeginningOfNumber(symbol)) {
-      return this.recognizeNumber();
-    }
-
-    if (CharUtils.isBeginningOfString(symbol)) {
-      return this.recognizeString();
-    }
+    if (CharUtils.isLetter(symbol)) return this.recognizeKeywordOrIdentifier();
+    if (CharUtils.isBeginningOfIdentifier(symbol)) return this.recognizeIdentifier();
+    if (CharUtils.isBeginningOfNumber(symbol)) return this.recognizeNumber();
+    if (CharUtils.isBeginningOfString(symbol)) return this.recognizeString();
 
     throw new Error(Report.error(this.createErrorReport(symbol)));
   }
@@ -126,7 +106,11 @@ export default class Lexer {
       .filter(x => !(parseInt(x, 10) >= 0))
       .filter(key => key.charAt(0) === symbol);
 
-    for (const keyword in keywords) {
+    const keys = Object.keys(keywords);
+    const values = Object.values(keywords);
+
+    for (let i = 0; i <= keys.length; ++i) {
+      const keyword = values[i];
       // @ts-ignore
       const token: Token | null = this.recognizeToken(TokenType[keyword]);
 
@@ -285,6 +269,212 @@ export default class Lexer {
       default:
         throw new Error(Report.error(this.createErrorReport(symbol)));
     }
+  }
+
+  recognizeOperator(): Token {
+    const symbol = this.input.charAt(this.position);
+    const lookahead = this.position + 1 < this.inputSize
+      ? this.input.charAt(this.position + 1)
+      : null;
+    const column = this.column;
+    const pos: Position = { line: this.line, column };
+
+    if (lookahead !== null
+      && (lookahead === '=' || lookahead === '&' || lookahead === '|' || lookahead === '-')
+    ) {
+      this.position++;
+      this.column++;
+    }
+
+    this.position++;
+    this.column++;
+
+    switch (symbol) {
+      case '=':
+        return lookahead !== null && lookahead === '='
+          ? new Token(TokenType.DoubleEqual, '==', pos)
+          : new Token(TokenType.Equal, '=', pos);
+
+      case '%':
+        return lookahead !== null && lookahead === '='
+          ? new Token(TokenType.ModuloEqual, '%=', pos)
+          : new Token(TokenType.Modulo, '%', pos);
+
+      case '+':
+        return lookahead !== null && lookahead === '='
+          ? new Token(TokenType.PlusEqual, '+=', pos)
+          : new Token(TokenType.Plus, '+', pos);
+
+      case '*':
+        return lookahead !== null && lookahead === '='
+          ? new Token(TokenType.TimesEqual, '*=', pos)
+          : new Token(TokenType.Times, '*', pos);
+
+      case '>':
+        return lookahead !== null && lookahead === '='
+          ? new Token(TokenType.GreaterOrEqual, '>=', pos)
+          : new Token(TokenType.Greater, '>', pos);
+
+      case '!':
+        return lookahead !== null && lookahead === '='
+          ? new Token(TokenType.NotEqual, '!=', pos)
+          : new Token(TokenType.Not, '!', pos);
+
+      case '~':
+        return lookahead !== null && lookahead === '='
+          ? new Token(TokenType.TildeEqual, '~=', pos)
+          : new Token(TokenType.Tilde, '~', pos);
+
+      case '$':
+        return lookahead !== null && lookahead === '='
+          ? new Token(TokenType.DollarEqual, '$=', pos)
+          : new Token(TokenType.Dollar, '$', pos);
+
+      case '^':
+        return lookahead !== null && lookahead === '='
+          ? new Token(TokenType.CaretEqual, '^=', pos)
+          : new Token(TokenType.Caret, '^', pos);
+
+      case '&':
+        if (lookahead !== null && lookahead === '&') {
+          return new Token(TokenType.And, '&&', pos);
+        }
+
+        throw new Error(Report.error(this.createErrorReport(symbol)));
+
+      case '|':
+        if (lookahead !== null && lookahead === '|') {
+          return new Token(TokenType.Or, '||', pos);
+        }
+
+        throw new Error(Report.error(this.createErrorReport(symbol)));
+
+      case '/':
+        if (lookahead !== '=' && lookahead !== '/') return new Token(TokenType.Div, '/', pos);
+        if (lookahead === '=') return new Token(TokenType.DivEqual, '/=', pos);
+        if (lookahead === '/') {
+          this.skipUntilNewline();
+          return this.nextToken();
+        }
+        break;
+
+      case '<':
+        if (lookahead !== '=' && lookahead !== '-') return new Token(TokenType.Less, '<', pos);
+        if (lookahead === '=') return new Token(TokenType.LessOrEqual, '<=', pos);
+        if (lookahead === '-') return new Token(TokenType.LeftArrow, '<-', pos);
+        break;
+
+      case '-':
+        if (lookahead === null || (lookahead !== '=' && lookahead !== '>')) {
+          return new Token(TokenType.Minus, '-', pos);
+        }
+        if (lookahead === '=') return new Token(TokenType.MinusEqual, '-=', pos);
+        if (lookahead === '>') return new Token(TokenType.RightArrow, '->', pos);
+        throw new Error(Report.error(this.createErrorReport(symbol)));
+
+      default:
+        throw new Error(Report.error(this.createErrorReport(symbol)));
+    }
+    throw new Error(Report.error(this.createErrorReport(symbol)));
+  }
+
+  buildStringRecognizer(): Fsm {
+    const states = new Set([
+      'Start', 'StartString', 'Character',
+      'Backslash', 'EscapeSequence', 'EndString',
+    ]);
+    const startState = 'Start';
+    const finalStates = new Set(['EndString']);
+
+    const transition = (state: string, symbol: string): string => {
+      switch (state) {
+        case 'Start':
+          if (CharUtils.isStringDelimiter(symbol)) return 'StartString';
+          break;
+
+        case 'StartString':
+        case 'Character':
+          if (CharUtils.isStringDelimiter(symbol)) return 'EndString';
+          if (CharUtils.isEscapeCharacter(symbol)) return 'Backslash';
+          return 'Character';
+
+        case 'Backslash':
+          if (CharUtils.isEndOfEscapeSequence(symbol)) return 'EscapeSequence';
+          break;
+
+        case 'EscapeSequence':
+          if (CharUtils.isStringDelimiter(symbol)) return 'EndString';
+          if (CharUtils.isEscapeCharacter(symbol)) return 'Backslash';
+          return 'Character';
+
+        default:
+          break;
+      }
+
+      return INVALID_FSM_STATE;
+    };
+
+    return new Fsm(states, startState, finalStates, transition);
+  }
+
+  buildNumberRecognizer(): Fsm {
+    const states = new Set([
+      'Start', 'Zero', 'Integer',
+      'StartDecimal', 'Decimal', 'StartExponentNotation',
+      'NumberInExponentNotation', 'End',
+    ]);
+
+    const startState = 'Start';
+
+    const finalStates = new Set([
+      'Zero', 'Integer', 'StartDecimal',
+      'Decimal', 'NumberInExponentNotation', 'End',
+    ]);
+
+    const transition = (state: string, symbol: string) => {
+      switch (state) {
+        case 'Start':
+          if (symbol === '0') return 'Zero';
+          if (symbol === '.') return 'StartDecimal';
+          if (CharUtils.isDigit(symbol)) return 'Integer';
+          break;
+
+        case 'Zero':
+          if (CharUtils.isExponentSymbol(symbol)) return 'StartExponentNotation';
+          if (symbol === '.') return 'StartDecimal';
+          break;
+
+        case 'Integer':
+          if (CharUtils.isDigit(symbol)) return 'Integer';
+          if (CharUtils.isExponentSymbol(symbol)) return 'StartExponentNotation';
+          if (symbol === '.') return 'StartDecimal';
+          break;
+
+        case 'StartDecimal':
+          if (CharUtils.isDigit(symbol)) return 'Decimal';
+          return INVALID_FSM_STATE;
+
+        case 'StartExponentNotation':
+          if (CharUtils.isDigit(symbol) || symbol === '-') return 'NumberInExponentNotation';
+          break;
+
+        case 'Decimal':
+          if (CharUtils.isDigit(symbol)) return 'Decimal';
+          if (CharUtils.isExponentSymbol(symbol)) return 'StartExponentNotation';
+          break;
+
+        case 'NumberInExponentNotation':
+          if (CharUtils.isDigit(symbol)) return 'NumberInExponentNotation';
+          break;
+
+        default:
+          break;
+      }
+
+      return INVALID_FSM_STATE;
+    };
+
+    return new Fsm(states, startState, finalStates, transition);
   }
 
   lookahead(): Token {
