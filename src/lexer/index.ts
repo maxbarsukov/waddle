@@ -109,7 +109,7 @@ export default class Lexer {
     const keys = Object.keys(keywords);
     const values = Object.values(keywords);
 
-    for (let i = 0; i <= keys.length; ++i) {
+    for (let i = 0; i < keys.length; ++i) {
       const keyword = values[i];
       // @ts-ignore
       const token: Token | null = this.recognizeToken(TokenType[keyword]);
