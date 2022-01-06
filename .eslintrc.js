@@ -22,7 +22,7 @@ module.exports = {
         objects: 'always-multiline',
         imports: 'always-multiline',
         exports: 'never',
-        functions: 'never',
+        functions: 'always-multiline',
       },
     ],
     'object-curly-newline': 'off',
