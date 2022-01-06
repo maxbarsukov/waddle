@@ -4,11 +4,13 @@ import TokenType from '../TokenType';
 
 describe('Lexer', () => {
   describe('#nextToken', () => {
-    test('should recognize a newline character as a single token ', () => {
-      const lexer = new Lexer('\n');
-      const token = lexer.nextToken();
-      expect(token.type).toBe(TokenType.Newline);
-      expect(token.value).toBe('\n');
+    describe('common', () => {
+      it('should recognize a newline character as a single token ', () => {
+        const lexer = new Lexer('\n');
+        const token = lexer.nextToken();
+        expect(token.type).toBe(TokenType.Newline);
+        expect(token.value).toBe('\n');
+      });
     });
 
     describe('recognizes a number', () => {
@@ -52,6 +54,30 @@ describe('Lexer', () => {
         const token = lexer.nextToken();
         expect(token.type).toBe(TokenType.Decimal);
         expect(token.value).toBe('42e-65');
+      });
+    });
+
+    describe('recognizes a string', () => {
+      const testStrings = {
+        'should recognize a simple string literal':
+          '"Hello, World!"',
+        'should recognize a string containing a newline character':
+          '"a string containing a \\n newline character."',
+        'should recognize a string containing an espaced backslash':
+          '"a string with a \\\\ backslash"',
+        'should recognize a string containing escaped double quotes':
+          '"a string containing an \\" escaped double quote"',
+        'should recognize a string containing escape sequences':
+          '"a string containing \\t\\b\\r\\f\\v\\0 escape sequences"',
+      };
+
+      Object.entries(testStrings).forEach(([key, value]) => {
+        it(key, () => {
+          const lexer = new Lexer(value);
+          const token = lexer.nextToken();
+          expect(token.type).toBe(TokenType.String);
+          expect(token.value).toBe(value);
+        });
       });
     });
   });
