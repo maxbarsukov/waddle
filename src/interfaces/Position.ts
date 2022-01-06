@@ -1,4 +1,4 @@
 export default interface Position {
-  line: string;
+  line: number;
   column: number;
 }
