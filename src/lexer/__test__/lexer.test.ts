@@ -217,4 +217,79 @@ describe('Lexer', () => {
       });
     });
   });
+
+  describe('#tokenize', () => {
+    it('should tokenize a simple expression', () => {
+      const lexer = new Lexer('42 + 21.0');
+      const tokens = lexer.tokenize();
+      expect(tokens.length).toBe(3);
+
+      expect(tokens[0].type).toBe(TokenType.Integer);
+      expect(tokens[0].value).toBe('42');
+
+      expect(tokens[1].type).toBe(TokenType.Plus);
+      expect(tokens[1].value).toBe('+');
+
+      expect(tokens[2].type).toBe(TokenType.Decimal);
+      expect(tokens[2].value).toBe('21.0');
+    });
+
+    it('should properly tokenize a full method definition', () => {
+      const lexer = new Lexer(`def add(a: Int, b: Int): Int {
+        a + b
+      }`);
+
+      const tokens = lexer.tokenize();
+
+      expect(tokens.length).toBe(20);
+
+      expect(tokens[0].type).toBe(TokenType.Def);
+
+      expect(tokens[1].type).toBe(TokenType.Identifier);
+      expect(tokens[1].value).toBe('add');
+
+      expect(tokens[2].type).toBe(TokenType.LeftParen);
+
+      expect(tokens[3].type).toBe(TokenType.Identifier);
+      expect(tokens[3].value).toBe('a');
+
+      expect(tokens[4].type).toBe(TokenType.Colon);
+
+      expect(tokens[5].type).toBe(TokenType.Identifier);
+      expect(tokens[5].value).toBe('Int');
+
+      expect(tokens[6].type).toBe(TokenType.Comma);
+
+      expect(tokens[7].type).toBe(TokenType.Identifier);
+      expect(tokens[7].value).toBe('b');
+
+      expect(tokens[8].type).toBe(TokenType.Colon);
+
+      expect(tokens[9].type).toBe(TokenType.Identifier);
+      expect(tokens[9].value).toBe('Int');
+
+      expect(tokens[10].type).toBe(TokenType.RightParen);
+
+      expect(tokens[11].type).toBe(TokenType.Colon);
+
+      expect(tokens[12].type).toBe(TokenType.Identifier);
+      expect(tokens[12].value).toBe('Int');
+
+      expect(tokens[13].type).toBe(TokenType.LeftBrace);
+
+      expect(tokens[14].type).toBe(TokenType.Newline);
+
+      expect(tokens[15].type).toBe(TokenType.Identifier);
+      expect(tokens[15].value).toBe('a');
+
+      expect(tokens[16].type).toBe(TokenType.Plus);
+
+      expect(tokens[17].type).toBe(TokenType.Identifier);
+      expect(tokens[17].value).toBe('b');
+
+      expect(tokens[18].type).toBe(TokenType.Newline);
+
+      expect(tokens[19].type).toBe(TokenType.RightBrace);
+    });
+  });
 });
