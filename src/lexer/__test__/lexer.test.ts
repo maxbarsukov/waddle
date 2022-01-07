@@ -105,6 +105,7 @@ describe('Lexer', () => {
         'should recognize an identifier containing an underscore': 'an_identifier',
         'should recognize an identifier containing a $ character': 'an$identifier',
         'should recognize an identifier containing a digit': 'identifier1',
+        'should recognize an identifier starting with a reserved keyword': 'toString',
       };
 
       Object.entries(testStrings).forEach(([key, value]) => {
@@ -138,6 +139,80 @@ describe('Lexer', () => {
           // @ts-ignore
           expect(token.type).toBe(TokenType[keywordTokenType]);
           expect(token.value).toBe(keyword);
+        });
+      });
+    });
+
+    describe('recognizes operators', () => {
+      const testStrings = {
+        // Dispatch operators
+        Dot: '.',
+        // Assignment operators
+        LeftArrow: '<-',
+        DivEqual: '/=',
+        Equal: '=',
+        MinusEqual: '-=',
+        ModuloEqual: '%=',
+        PlusEqual: '+=',
+        RightArrow: '->',
+        TimesEqual: '*=',
+        // Arithmetic operators
+        Div: '/',
+        Modulo: '%',
+        Minus: '-',
+        Plus: '+',
+        Times: '*',
+        // Comparison operators
+        DoubleEqual: '==',
+        Greater: '>',
+        GreaterOrEqual: '>=',
+        Less: '<',
+        LessOrEqual: '<=',
+        NotEqual: '!=',
+        // Boolean operators
+        And: '&&',
+        Not: '!',
+        Or: '||',
+        // Other operators
+        Tilde: '~',
+        TildeEqual: '~=',
+        Dollar: '$',
+        DollarEqual: '$=',
+        Caret: '^',
+        CaretEqual: '^=',
+      };
+
+      Object.entries(testStrings).forEach(([key, value]) => {
+        it(`should recognize the ${key} (${value}) operator`, () => {
+          const lexer = new Lexer(value);
+          const token = lexer.nextToken();
+          // @ts-ignore
+          expect(token.type).toBe(TokenType[key]);
+          expect(token.value).toBe(value);
+        });
+      });
+    });
+
+    describe('recognizes delimiter', () => {
+      const testStrings = {
+        Colon: ':',
+        Comma: ',',
+        LeftBrace: '{',
+        LeftBracket: '[',
+        LeftParen: '(',
+        Newline: '\n',
+        RightBrace: '}',
+        RightBracket: ']',
+        RightParen: ')',
+      };
+
+      Object.entries(testStrings).forEach(([key, value]) => {
+        it(`should recognize the ${key} (${value}) delimiter`, () => {
+          const lexer = new Lexer(value);
+          const token = lexer.nextToken();
+          // @ts-ignore
+          expect(token.type).toBe(TokenType[key]);
+          expect(token.value).toBe(value);
         });
       });
     });
