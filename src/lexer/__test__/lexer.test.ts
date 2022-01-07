@@ -96,5 +96,50 @@ describe('Lexer', () => {
         expect(token.value).toBe('false');
       });
     });
+
+    describe('recognizes an identifier', () => {
+      const testStrings = {
+        'should recognize an identifier of a single letter': 'i',
+        'should recognize an identifier made of letters': 'anIdentifier',
+        'should recognize an identifier starting with underscore': '_identifier',
+        'should recognize an identifier containing an underscore': 'an_identifier',
+        'should recognize an identifier containing a $ character': 'an$identifier',
+        'should recognize an identifier containing a digit': 'identifier1',
+      };
+
+      Object.entries(testStrings).forEach(([key, value]) => {
+        it(key, () => {
+          const lexer = new Lexer(value);
+          const token = lexer.nextToken();
+          expect(token.type).toBe(TokenType.Identifier);
+          expect(token.value).toBe(value);
+        });
+      });
+    });
+
+    describe('recognizes keywords', () => {
+      const testStrings = [
+        'abstract', 'class', 'def',
+        'else', 'extends', 'false',
+        'final', 'for', 'in',
+        'if', 'let', 'new', 'null',
+        'override', 'private', 'protected',
+        'return', 'super', 'to',
+        'true', 'var', 'while',
+      ];
+
+      testStrings.forEach(keyword => {
+        it(`should recognize the ${keyword} keyword`, () => {
+          const keywordTokenType = keyword
+            .trim()
+            .replace(/^\w/, (c) => c.toUpperCase());
+          const lexer = new Lexer(keyword);
+          const token = lexer.nextToken();
+          // @ts-ignore
+          expect(token.type).toBe(TokenType[keywordTokenType]);
+          expect(token.value).toBe(keyword);
+        });
+      });
+    });
   });
 });
