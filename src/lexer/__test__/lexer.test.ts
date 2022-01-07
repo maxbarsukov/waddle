@@ -80,5 +80,21 @@ describe('Lexer', () => {
         });
       });
     });
+
+    describe('recognizes a boolens', () => {
+      it('should recognize the boolean true literal', () => {
+        const lexer = new Lexer('true');
+        const token = lexer.nextToken();
+        expect(token.type).toBe(TokenType.True);
+        expect(token.value).toBe('true');
+      });
+
+      it('should recognize the boolean false literal', () => {
+        const lexer = new Lexer('false');
+        const token = lexer.nextToken();
+        expect(token.type).toBe(TokenType.False);
+        expect(token.value).toBe('false');
+      });
+    });
   });
 });
