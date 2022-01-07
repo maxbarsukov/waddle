@@ -1,31 +1,3 @@
-export enum Keyword {
-  Abstract,
-  As,
-  Class,
-  Else,
-  False,
-  Final,
-  Def,
-  For,
-  If,
-  In,
-  Lazy,
-  Extends,
-  Let,
-  New,
-  Null,
-  Override,
-  Private,
-  Protected,
-  Return,
-  Super,
-  To,
-  This,
-  True,
-  Var,
-  While,
-}
-
 const TokenType = {
   // Keywords
   Abstract: 'abstract',
