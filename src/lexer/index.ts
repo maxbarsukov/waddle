@@ -6,7 +6,7 @@ import Position from '../interfaces/Position';
 
 import Fsm, { INVALID_FSM_STATE, type FsmToken } from './Fsm';
 import Token from './Token';
-import TokenType, { Keyword } from './TokenType';
+import TokenType from './TokenType';
 
 export default class Lexer {
   input: string;
@@ -102,17 +102,13 @@ export default class Lexer {
   recognizeKeyword(): Token | null {
     const symbol = this.input.charAt(this.position);
 
-    const keywords: string[] = Object.keys(Keyword)
+    const keywords: string[] = Object.values(TokenType)
       .filter(x => !(parseInt(x, 10) >= 0))
       .filter(key => key.charAt(0) === symbol);
 
-    const keys = Object.keys(keywords);
-    const values = Object.values(keywords);
-
-    for (let i = 0; i < keys.length; ++i) {
-      const keyword = values[i];
-      // @ts-ignore
-      const token: Token | null = this.recognizeToken(TokenType[keyword]);
+    for (let i = 0; i < keywords.length; ++i) {
+      const keyword = keywords[i];
+      const token: Token | null = this.recognizeToken(keyword);
 
       if (token !== null) {
         const offset = token.value.length;
