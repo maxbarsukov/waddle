@@ -1,5 +1,11 @@
 import Parser from '..';
-import { DecimalLiteral, IntegerLiteral, BooleanLiteral, StringLiteral } from '../../ast';
+import {
+  BinaryExpression,
+  BooleanLiteral,
+  DecimalLiteral,
+  IntegerLiteral,
+  StringLiteral,
+} from '../../ast';
 
 describe('Parser', () => {
   describe('#parseExpression', () => {
@@ -50,6 +56,60 @@ describe('Parser', () => {
         expect(expression.isNullLiteral()).toBe(false);
         expect(expression.value).toBe('false');
       });
+    });
+
+    describe('arithmetic operators', () => {
+      it('should correctly handle left associativity for arithmetic operators', () => {
+        const parser = new Parser('7 - 4 + 2');
+        const expression = parser.parseExpression() as BinaryExpression;
+
+        expect(expression.isBinaryExpression()).toBe(true);
+
+        expect(expression.operator).toBe('+');
+        expect(expression.left.isBinaryExpression()).toBe(true);
+
+        expect((expression.left as BinaryExpression).operator).toBe('-');
+        expect((expression.left as BinaryExpression).left.isIntegerLiteral()).toBe(true);
+
+        expect(((expression.left as BinaryExpression).left as IntegerLiteral).value).toBe('7');
+
+        expect((expression.left as BinaryExpression).right.isIntegerLiteral()).toBe(true);
+        expect(((expression.left as BinaryExpression).right as IntegerLiteral).value).toBe('4');
+
+        expect((expression.right as IntegerLiteral).value).toBe('2');
+      });
+    });
+
+    it('should correctly handle operator precedence', () => {
+      const parser = new Parser('1 + 3 * 5 - 8');
+      const expression = parser.parseExpression() as BinaryExpression;
+
+      expect(expression.isBinaryExpression()).toBe(true);
+      expect(expression.operator).toBe('-');
+
+      const left = expression.left as BinaryExpression;
+
+      expect(left.isBinaryExpression()).toBe(true);
+      expect(left.operator).toBe('+');
+
+      expect(left.left.isIntegerLiteral()).toBe(true);
+      expect((left.left as IntegerLiteral).value).toBe('1');
+
+      const multiplication = left.right as BinaryExpression;
+
+      expect(multiplication.isBinaryExpression()).toBe(true);
+      expect(multiplication.operator).toBe('*');
+
+      expect(multiplication.left.isIntegerLiteral()).toBe(true);
+      expect((multiplication.left as IntegerLiteral).value).toBe('3');
+
+      expect(multiplication.right.isIntegerLiteral()).toBe(true);
+      expect((multiplication.right as IntegerLiteral).value).toBe('5');
+
+      const right = expression.right as IntegerLiteral;
+
+      expect(right.isIntegerLiteral()).toBe(true);
+      expect(right.value).toBe('8');
     });
   });
 });
