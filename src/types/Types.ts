@@ -4,7 +4,7 @@ export const Types = {
   Double: 'Double',
   String: 'String',
   Bool: 'Bool',
-  Unit: 'Unit',
+  Void: 'Void',
   Predef: 'Predef',
   Null: 'Null',
   Math: 'Math$',
