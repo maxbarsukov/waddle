@@ -3,8 +3,10 @@ import {
   BinaryExpression,
   BooleanLiteral,
   DecimalLiteral,
+  IfElse,
   IntegerLiteral,
   StringLiteral,
+  While,
 } from '../../ast';
 
 describe('Parser', () => {
@@ -78,38 +80,66 @@ describe('Parser', () => {
 
         expect((expression.right as IntegerLiteral).value).toBe('2');
       });
+
+      it('should correctly handle operator precedence', () => {
+        const parser = new Parser('1 + 3 * 5 - 8');
+        const expression = parser.parseExpression() as BinaryExpression;
+
+        expect(expression.isBinaryExpression()).toBe(true);
+        expect(expression.operator).toBe('-');
+
+        const left = expression.left as BinaryExpression;
+
+        expect(left.isBinaryExpression()).toBe(true);
+        expect(left.operator).toBe('+');
+
+        expect(left.left.isIntegerLiteral()).toBe(true);
+        expect((left.left as IntegerLiteral).value).toBe('1');
+
+        const multiplication = left.right as BinaryExpression;
+
+        expect(multiplication.isBinaryExpression()).toBe(true);
+        expect(multiplication.operator).toBe('*');
+
+        expect(multiplication.left.isIntegerLiteral()).toBe(true);
+        expect((multiplication.left as IntegerLiteral).value).toBe('3');
+
+        expect(multiplication.right.isIntegerLiteral()).toBe(true);
+        expect((multiplication.right as IntegerLiteral).value).toBe('5');
+
+        const right = expression.right as IntegerLiteral;
+
+        expect(right.isIntegerLiteral()).toBe(true);
+        expect(right.value).toBe('8');
+      });
     });
 
-    it('should correctly handle operator precedence', () => {
-      const parser = new Parser('1 + 3 * 5 - 8');
-      const expression = parser.parseExpression() as BinaryExpression;
+    describe('expressions', () => {
+      it('should parse an if/else expression', () => {
+        const parser = new Parser('if (true) 1 else 2');
+        const expression = parser.parseExpression() as IfElse;
 
-      expect(expression.isBinaryExpression()).toBe(true);
-      expect(expression.operator).toBe('-');
+        expect(expression.isIfElse()).toBe(true);
+        expect(expression.thenBranch.isIntegerLiteral()).toBe(true);
+        expect((expression.thenBranch as IntegerLiteral).value).toBe('1');
 
-      const left = expression.left as BinaryExpression;
+        // @ts-ignore
+        expect(expression.elseBranch.isIntegerLiteral()).toBe(true);
+        expect((expression.elseBranch as IntegerLiteral).value).toBe('2');
+      });
 
-      expect(left.isBinaryExpression()).toBe(true);
-      expect(left.operator).toBe('+');
+      it('should parse a while expression', () => {
+        const parser = new Parser('while (true) 42');
+        const expression = parser.parseExpression() as While;
 
-      expect(left.left.isIntegerLiteral()).toBe(true);
-      expect((left.left as IntegerLiteral).value).toBe('1');
+        expect(expression.isWhile()).toBe(true);
 
-      const multiplication = left.right as BinaryExpression;
+        expect(expression.condition.isBooleanLiteral()).toBe(true);
+        expect((expression.condition as BooleanLiteral).value).toBe('true');
 
-      expect(multiplication.isBinaryExpression()).toBe(true);
-      expect(multiplication.operator).toBe('*');
-
-      expect(multiplication.left.isIntegerLiteral()).toBe(true);
-      expect((multiplication.left as IntegerLiteral).value).toBe('3');
-
-      expect(multiplication.right.isIntegerLiteral()).toBe(true);
-      expect((multiplication.right as IntegerLiteral).value).toBe('5');
-
-      const right = expression.right as IntegerLiteral;
-
-      expect(right.isIntegerLiteral()).toBe(true);
-      expect(right.value).toBe('8');
+        expect(expression.body.isIntegerLiteral()).toBe(true);
+        expect((expression.body as IntegerLiteral).value).toBe('42');
+      });
     });
   });
 });
