@@ -1,7 +1,7 @@
 import Parser from '..';
 import {
   BinaryExpression,
-  BooleanLiteral,
+  BooleanLiteral, ConstructorCall,
   DecimalLiteral,
   IfElse,
   Initialization,
@@ -182,9 +182,21 @@ describe('Parser', () => {
 
       it('should parse a this expression', () => {
         const parser = new Parser('this');
-        const expression = parser.parseExpression()
+        const expression = parser.parseExpression();
 
         expect(expression.isThis()).toBe(true);
+      });
+
+      it('should parse a constructor call', () => {
+        const parser = new Parser('new Integer(42)');
+        const expression = parser.parseExpression() as ConstructorCall;
+
+        expect(expression.isConstructorCall()).toBe(true);
+
+        expect(expression.type).toBe('Integer');
+        expect(expression.args.length).toBe(1);
+        expect(expression.args[0].isIntegerLiteral()).toBe(true);
+        expect((expression.args[0] as IntegerLiteral).value).toBe('42');
       });
     });
   });
