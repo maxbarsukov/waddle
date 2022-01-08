@@ -1,11 +1,10 @@
 import Expression from '../Expression';
-import Block from './Block';
 
 export default class While extends Expression {
   condition: Expression;
-  body: Block;
+  body: Expression;
 
-  constructor(condition: Expression, body: Block) {
+  constructor(condition: Expression, body: Expression) {
     super();
     this.condition = condition;
     this.body = body;
