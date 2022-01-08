@@ -1,15 +1,19 @@
 import Expression from '../Expression';
 
 export default class FunctionCall extends Expression {
-  object: Expression;
   functionName: string;
   args: Expression[];
+  object: Expression | undefined;
 
-  constructor(object: Expression, functionName: string, args = []) {
+  constructor(
+    functionName: string,
+    args: Expression[] = [],
+    object: Expression | undefined = undefined,
+  ) {
     super();
-    this.object = object;
     this.functionName = functionName;
     this.args = args;
+    this.object = object;
   }
 
   isFunctionCall() {
