@@ -4,7 +4,10 @@ import {
   BooleanLiteral,
   DecimalLiteral,
   IfElse,
+  Initialization,
   IntegerLiteral,
+  Let,
+  Reference,
   StringLiteral,
   While,
 } from '../../ast';
@@ -139,6 +142,42 @@ describe('Parser', () => {
 
         expect(expression.body.isIntegerLiteral()).toBe(true);
         expect((expression.body as IntegerLiteral).value).toBe('42');
+      });
+
+      it('should parse a let expression', () => {
+        const parser = new Parser('let a: Int = 2, b = 3 in a + b');
+        const expression = parser.parseExpression() as Let;
+
+        expect(expression.isLet()).toBe(true);
+
+        const initializations = expression.initializations as Initialization[];
+
+        expect(initializations.length).toBe(2);
+
+        expect(initializations[0].identifier).toBe('a');
+        expect(initializations[0].type).toBe('Int');
+
+        // @ts-ignore
+        expect(initializations[0].value.isIntegerLiteral()).toBe(true);
+        expect((initializations[0].value as IntegerLiteral).value).toBe('2');
+
+        expect(initializations[1].identifier).toBe('b');
+        expect(initializations[1].type).toBe(undefined);
+
+        // @ts-ignore
+        expect(initializations[1].value.isIntegerLiteral()).toBe(true);
+        expect((initializations[1].value as IntegerLiteral).value).toBe('3');
+
+        const body = expression.body as BinaryExpression;
+
+        expect(body.isBinaryExpression()).toBe(true);
+        expect(body.operator).toBe('+');
+
+        expect(body.left.isReference()).toBe(true);
+        expect((body.left as Reference).identifier).toBe('a');
+
+        expect(body.right.isReference()).toBe(true);
+        expect((body.right as Reference).identifier).toBe('b');
       });
     });
   });
