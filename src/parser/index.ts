@@ -184,7 +184,7 @@ export default class Parser {
 
         const left = expression;
         const right = parseBranchFunction.apply(this);
-        expression = new BinaryExpression(right, operator, left);
+        expression = new BinaryExpression(left, operator, right);
       }
     }
     return expression;
