@@ -1,7 +1,9 @@
 import Parser from '..';
 import {
   BinaryExpression,
-  BooleanLiteral, ConstructorCall,
+  Block,
+  BooleanLiteral,
+  ConstructorCall,
   DecimalLiteral,
   IfElse,
   Initialization,
@@ -197,6 +199,30 @@ describe('Parser', () => {
         expect(expression.args.length).toBe(1);
         expect(expression.args[0].isIntegerLiteral()).toBe(true);
         expect((expression.args[0] as IntegerLiteral).value).toBe('42');
+      });
+
+      it('should parse a block of expressions', () => {
+        const parser = new Parser(`{
+          "hello"
+          42
+          true
+         }`);
+
+        const expression = parser.parseExpression() as Block;
+        expect(expression.isBlock()).toBe(true);
+
+        const expressions = expression.expressions;
+
+        expect(expressions.length).toBe(3);
+
+        expect(expressions[0].isStringLiteral()).toBe(true);
+        expect((expressions[0] as StringLiteral).value).toBe('"hello"');
+
+        expect(expressions[1].isIntegerLiteral()).toBe(true);
+        expect((expressions[1] as IntegerLiteral).value).toBe('42');
+
+        expect(expressions[2].isBooleanLiteral()).toBe(true);
+        expect((expressions[2] as BooleanLiteral).value).toBe('true');
       });
     });
   });
