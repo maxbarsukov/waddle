@@ -179,6 +179,13 @@ describe('Parser', () => {
         expect(body.right.isReference()).toBe(true);
         expect((body.right as Reference).identifier).toBe('b');
       });
+
+      it('should parse a this expression', () => {
+        const parser = new Parser('this');
+        const expression = parser.parseExpression()
+
+        expect(expression.isThis()).toBe(true);
+      });
     });
   });
 });
