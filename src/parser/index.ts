@@ -339,8 +339,8 @@ export default class Parser {
       const token = this.expect(TokenType.Identifier);
 
       const identifier = token.value;
-      let type; let
-        value;
+      let type;
+      let value;
 
       if (this.accept(TokenType.Colon)) {
         this.expect(TokenType.Colon);
