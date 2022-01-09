@@ -3,12 +3,18 @@ import {
   BinaryExpression,
   Block,
   BooleanLiteral,
+  Class,
   ConstructorCall,
   DecimalLiteral,
+  Formal,
+  Function,
+  FunctionCall,
   IfElse,
   Initialization,
   IntegerLiteral,
   Let,
+  Program,
+  Property,
   Reference,
   StringLiteral,
   UnaryExpression,
@@ -249,6 +255,40 @@ describe('Parser', () => {
         expect(right.right.isDecimalLiteral()).toBe(true);
         expect((right.right as DecimalLiteral).value).toBe('3.14');
       });
+
+      it('should parse a simple method call', () => {
+        const parser = new Parser('car.drive(2)');
+        const expression = parser.parseExpression() as FunctionCall;
+
+        expect(expression.isFunctionCall()).toBe(true);
+        expect(expression.functionName).toBe('drive');
+        expect(expression.args.length).toBe(1);
+        expect(expression.args[0].isIntegerLiteral()).toBe(true);
+
+        const object = expression.object as Reference;
+        expect(object.isReference()).toBe(true);
+        expect(object.identifier).toBe('car');
+      });
+
+      it('should parse chain method calls', () => {
+        const parser = new Parser('node.add(42).push("Hello")');
+        const expression = parser.parseExpression() as FunctionCall;
+
+        expect(expression.isFunctionCall()).toBe(true);
+        expect(expression.functionName).toBe('push');
+        expect(expression.args.length).toBe(1);
+        expect(expression.args[0].isStringLiteral()).toBe(true);
+
+        const object = expression.object as FunctionCall;
+
+        expect(object.isFunctionCall()).toBe(true);
+        expect(object.functionName).toBe('add');
+        expect(object.args.length).toBe(1);
+        // @ts-ignore
+        expect(object.object.isReference()).toBe(true);
+        expect(object.args.length).toBe(1);
+        expect(object.args[0].isIntegerLiteral()).toBe(true);
+      });
     });
 
     describe('unary operators', () => {
@@ -273,6 +313,165 @@ describe('Parser', () => {
         expect(expression.expression.isBooleanLiteral()).toBe(true);
         expect((expression.expression as BooleanLiteral).value).toBe('true');
       });
+    });
+  });
+
+  describe('#parseFunction', () => {
+    it('should parse a function definition', () => {
+      const parser = new Parser(`def max(a: Int, b: Int): Int = {
+        if (a > b) a else b
+       }`);
+
+      const func = parser.parseFunction() as Function;
+
+      expect(func.isFunction()).toBe(true);
+      expect(func.name).toBe('max');
+      expect(func.returnType).toBe('Int');
+
+      const parameters = func.parameters as Formal[];
+
+      expect(parameters.length).toBe(2);
+      expect(parameters[0].identifier).toBe('a');
+      expect(parameters[0].type).toBe('Int');
+      expect(parameters[1].identifier).toBe('b');
+      expect(parameters[1].type).toBe('Int');
+
+      const body = func.body as Block;
+
+      expect(body.isBlock()).toBe(true);
+      expect(body.expressions.length).toBe(1);
+      expect(body.expressions[0].isIfElse()).toBe(true);
+    });
+  });
+
+  describe('#parseClass', () => {
+    it('should parse a class definition', () => {
+      const parser = new Parser(`class Fraction(n: Int, d: Int) {
+        var num: Int = n
+        var den: Int = d
+        def gcd(): Int = {
+          let a = num, b = den in {
+            if (b == 0) a else gcd(b, a % b)
+          }
+        }
+        override def toString(): String = n.toString() + "/" + d.toString()
+        }`);
+
+      const klass = parser.parseClass() as Class;
+      expect(klass.isClass()).toBe(true);
+      expect(klass.name).toBe('Fraction');
+
+      const parameters = klass.parameters as Formal[];
+      expect(parameters.length).toBe(2);
+      expect(parameters[0].identifier).toBe('n');
+      expect(parameters[0].type).toBe('Int');
+      expect(parameters[1].identifier).toBe('d');
+      expect(parameters[1].type).toBe('Int');
+
+      const variables = klass.properties as Property[];
+      expect(variables.length).toBe(2);
+      expect(variables[0].name).toBe('num');
+      expect(variables[0].type).toBe('Int');
+      expect(variables[0].value?.isReference()).toBe(true);
+      expect((variables[0].value as Reference).identifier).toBe('n');
+
+      expect(variables[1].name).toBe('den');
+      expect(variables[1].type).toBe('Int');
+      expect(variables[1].value?.isReference()).toBe(true);
+      expect((variables[1].value as Reference).identifier).toBe('d');
+
+      const functions = klass.functions as Function[];
+      expect(functions.length).toBe(2);
+      expect(functions[0].name).toBe('gcd');
+      expect(functions[1].name).toBe('toString');
+      expect(functions[1].override).toBe(true);
+    });
+  });
+
+  describe('#parseProgram', () => {
+
+    it('should parse multiple class definitions', () => {
+      let parser = new Parser(`
+      class Fraction(n: Int, d: Int) {
+        var num: Int = n
+        var den: Int = d
+        def gcd(): Int = {
+          let a = num, b = den in {
+            if (b == 0) a else gcd(b, a % b)
+          }
+        }
+        override def toString(): String = n.toString() + "/" + d.toString()
+      }
+
+      class Complex(a: Double, b: Double) {
+        var x: Double = a
+        var y: Double = b
+        override def toString(): String = x.toString() + " + " + b.toString() + "i"
+      }
+      `);
+
+      const program = parser.parseProgram() as Program;
+
+      expect(program.classesCount()).toBe(2);
+
+      const fraction = program.classes[0] as Class;
+      expect(fraction.isClass()).toBe(true);
+      expect(fraction.name).toBe('Fraction');
+
+      const fracParameters = fraction.parameters as Formal[];
+      expect(fracParameters.length).toBe(2);
+      expect(fracParameters[0].identifier).toBe('n');
+      expect(fracParameters[0].type).toBe('Int');
+      expect(fracParameters[1].identifier).toBe('d');
+      expect(fracParameters[1].type).toBe('Int');
+
+      const fracVariables = fraction.properties as Property[];
+      expect(fracVariables.length).toBe(2);
+
+      expect(fracVariables[0].name).toBe('num');
+      expect(fracVariables[0].type).toBe('Int');
+      expect(fracVariables[0].value?.isReference()).toBe(true);
+      expect((fracVariables[0].value as Reference).identifier).toBe('n');
+
+      expect(fracVariables[1].name).toBe('den');
+      expect(fracVariables[1].type).toBe('Int');
+      expect(fracVariables[1].value?.isReference()).toBe(true);
+      expect((fracVariables[1].value as Reference).identifier).toBe('d');
+
+      const fracFunctions = fraction.functions as Function[];
+      expect(fracFunctions.length).toBe(2);
+      expect(fracFunctions[0].name).toBe('gcd');
+      expect(fracFunctions[1].name).toBe('toString');
+      expect(fracFunctions[1].override).toBe(true);
+
+      const complex = program.classes[1] as Class;
+      expect(complex.isClass()).toBe(true);
+      expect(complex.name).toBe('Complex');
+
+      const complexParameters = complex.parameters as Formal[];
+      expect(complexParameters.length).toBe(2);
+      expect(complexParameters[0].identifier).toBe('a');
+      expect(complexParameters[0].type).toBe('Double');
+      expect(complexParameters[1].identifier).toBe('b');
+      expect(complexParameters[1].type).toBe('Double');
+
+      const complexVariables = complex.properties as Property[];
+      expect(complexVariables.length).toBe(2);
+
+      expect(complexVariables[0].name).toBe('x');
+      expect(complexVariables[0].type).toBe('Double');
+      expect(complexVariables[0].value?.isReference()).toBe(true);
+      expect((complexVariables[0].value as Reference).identifier).toBe('a');
+
+      expect(complexVariables[1].name).toBe('y');
+      expect(complexVariables[1].type).toBe('Double');
+      expect(complexVariables[1].value?.isReference()).toBe(true);
+      expect((complexVariables[1].value as Reference).identifier).toBe('b');
+
+      const complexFunctions = complex.functions as Function[];
+      expect(complexFunctions.length).toBe(1);
+      expect(complexFunctions[0].name).toBe('toString');
+      expect(complexFunctions[0].override).toBe(true);
     });
   });
 });
