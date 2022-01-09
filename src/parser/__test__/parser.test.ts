@@ -11,6 +11,7 @@ import {
   Let,
   Reference,
   StringLiteral,
+  UnaryExpression,
   While,
 } from '../../ast';
 
@@ -223,6 +224,30 @@ describe('Parser', () => {
 
         expect(expressions[2].isBooleanLiteral()).toBe(true);
         expect((expressions[2] as BooleanLiteral).value).toBe('true');
+      });
+    });
+
+    describe('unary operators', () => {
+      it('should parse a negative expression', () => {
+        const parser = new Parser('-42');
+        const expression = parser.parseExpression() as UnaryExpression;
+
+        expect(expression.isUnaryExpression()).toBe(true);
+        expect(expression.operator).toBe('-');
+
+        expect(expression.expression.isIntegerLiteral()).toBe(true);
+        expect((expression.expression as IntegerLiteral).value).toBe('42');
+      });
+
+      it('should parse a negated boolean expression', () => {
+        const parser = new Parser('!true');
+        const expression = parser.parseExpression() as UnaryExpression;
+
+        expect(expression.isUnaryExpression()).toBe(true);
+        expect(expression.operator).toBe('!');
+
+        expect(expression.expression.isBooleanLiteral()).toBe(true);
+        expect((expression.expression as BooleanLiteral).value).toBe('true');
       });
     });
   });
