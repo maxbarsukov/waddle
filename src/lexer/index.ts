@@ -4,7 +4,7 @@ import Report from '../utils/Report';
 import ErrorMessage from '../interfaces/ErrorMessage';
 import Position from '../interfaces/Position';
 
-import Fsm, { INVALID_FSM_STATE, type FsmToken } from './Fsm';
+import Fsm, { INVALID_FSM_STATE, FsmToken } from './Fsm';
 import Token from './Token';
 import TokenType from './TokenType';
 
