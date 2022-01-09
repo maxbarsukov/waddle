@@ -225,6 +225,7 @@ export default class Parser {
 
   parseClass() {
     const classToken = this.expect(TokenType.Class);
+    const name = this.expect(TokenType.Identifier).value;
 
     let parameters: Formal[] = [];
     let superClass: Type | undefined;
@@ -243,7 +244,7 @@ export default class Parser {
     }
 
     const klass = new Class(
-      this.expect(TokenType.Identifier).value,
+      name,
       parameters,
       superClass,
       superClassArgs,
