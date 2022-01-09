@@ -1,7 +1,5 @@
-import Obj from './Obj';
-
 export default class Store {
-  locations: Obj[];
+  locations: any[];
   allocated: boolean[];
 
   constructor() {
@@ -9,7 +7,7 @@ export default class Store {
     this.allocated = [];
   }
 
-  alloc(value: Obj) {
+  alloc(value: any) {
     let address = 0;
     const size = this.locations.length;
 
@@ -35,7 +33,7 @@ export default class Store {
     }
   }
 
-  put(address: number, value: Obj) {
+  put(address: number, value: any) {
     if (address >= 0 && address < this.locations.length) {
       this.locations[address] = value;
     }
