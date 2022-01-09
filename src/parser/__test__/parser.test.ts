@@ -389,9 +389,8 @@ describe('Parser', () => {
   });
 
   describe('#parseProgram', () => {
-
     it('should parse multiple class definitions', () => {
-      let parser = new Parser(`
+      const parser = new Parser(`
       class Fraction(n: Int, d: Int) {
         var num: Int = n
         var den: Int = d
