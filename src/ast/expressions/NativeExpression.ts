@@ -1,10 +1,11 @@
 import Expression from '../Expression';
-import Function from '../definitions/Function';
+import Context from '../../interpreter/Context';
+import Obj from '../../interpreter/Obj';
 
 export default class NativeExpression extends Expression {
-  func: Function;
+  func: (context: Context) => Obj;
 
-  constructor(func: Function) {
+  constructor(func: (context: Context) => Obj) {
     super();
     this.func = func;
   }
