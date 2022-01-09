@@ -9,7 +9,7 @@ import Property from './Property';
 export default class Class extends Definition {
   name: string;
   parameters: Formal[];
-  superClass: Type | undefined;
+  superClass: Type;
   superClassArgs: Expression[];
   properties: Property[];
   functions: Function[];
@@ -17,7 +17,7 @@ export default class Class extends Definition {
   constructor(
     name: string,
     parameters: Formal[] = [],
-    superClass: Type | undefined = undefined,
+    superClass: Type = 'NO_SUPER_CLASS',
     superClassArgs: Expression[] = [],
     properties: Property[] = [],
     functions: Function[] = [],
