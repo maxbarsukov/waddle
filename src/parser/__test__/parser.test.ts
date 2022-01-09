@@ -225,6 +225,30 @@ describe('Parser', () => {
         expect(expressions[2].isBooleanLiteral()).toBe(true);
         expect((expressions[2] as BooleanLiteral).value).toBe('true');
       });
+
+      it('should parse a parenthesized expression', () => {
+        const parser = new Parser('1 + (2 - 3.14)');
+        const expression = parser.parseExpression() as BinaryExpression;
+
+        expect(expression.isBinaryExpression()).toBe(true);
+        expect(expression.operator).toBe('+');
+
+        const left = expression.left as IntegerLiteral;
+
+        expect(left.isIntegerLiteral()).toBe(true);
+        expect(left.value).toBe('1');
+
+        const right = expression.right as BinaryExpression;
+
+        expect(right.isBinaryExpression()).toBe(true);
+        expect(right.operator).toBe('-');
+
+        expect(right.left.isIntegerLiteral()).toBe(true);
+        expect((right.left as IntegerLiteral).value).toBe('2');
+
+        expect(right.right.isDecimalLiteral()).toBe(true);
+        expect((right.right as DecimalLiteral).value).toBe('3.14');
+      });
     });
 
     describe('unary operators', () => {
