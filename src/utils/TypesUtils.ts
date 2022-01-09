@@ -1,55 +1,55 @@
 import Type, { Types } from '../types/Types';
 import { Class, Formal, Function } from '../ast';
-import Context from '../interpreter/Context';
+import Env from '../interfaces/Env';
 
 export default class TypesUtils {
-  static leastUpperBound(typeA: Type, typeB: Type, context: Context): Type {
+  static leastUpperBound(typeA: Type, typeB: Type, env: Env): Type {
     if (typeA === typeB) return typeA;
     if (typeA === Types.Null) return typeB;
     if (typeB === Types.Null) return typeA;
 
-    const classA = context.getClass(typeA);
-    const classB = context.getClass(typeB);
+    const classA = env.getClass(typeA);
+    const classB = env.getClass(typeB);
 
     if (classA?.superClass === classB?.superClass) return classA?.superClass;
     if (
-      this.inheritanceIndex(typeA, Types.Object, context)
-      > this.inheritanceIndex(typeB, Types.Object, context)
+      this.inheritanceIndex(typeA, Types.Object, env)
+      > this.inheritanceIndex(typeB, Types.Object, env)
     ) {
-      return this.leastUpperBound(classA?.superClass, typeB, context);
+      return this.leastUpperBound(classA?.superClass, typeB, env);
     }
 
-    return this.leastUpperBound(typeA, classB?.superClass, context);
+    return this.leastUpperBound(typeA, classB?.superClass, env);
   }
 
-  static inheritanceIndex(typeA: Type, typeB: Type, context: Context) {
+  static inheritanceIndex(typeA: Type, typeB: Type, env: Env) {
     let index = 0;
     while (typeA !== undefined && typeA !== typeB) {
       index++;
-      typeA = context.getClass(typeA).superClass;
+      typeA = env.getClass(typeA).superClass;
     }
 
     return index;
   }
 
-  static findMethodToApply(klass: Class, name: string, argsTypes: Type[], context: Context) {
-    let methods = this.findMethods(klass, name, argsTypes, context);
+  static findMethodToApply(klass: Class, name: string, argsTypes: Type[], env: Env) {
+    let methods = this.findMethods(klass, name, argsTypes, env);
     if (methods.length === 0) {
       return undefined;
     }
 
     methods = methods.filter((method) => this.allConform(
-      argsTypes, method.parameters.map((param) => param.type), context,
+      argsTypes, method.parameters.map((param) => param.type), env,
     ));
 
     if (methods.length === 0) {
       return undefined;
     }
 
-    return methods.reduce((curr, prev) => this.mostSpecificFunction(curr, prev, context)!);
+    return methods.reduce((curr, prev) => this.mostSpecificFunction(curr, prev, env)!);
   }
 
-  static findMethods(klass: Class, name: string, argsTypes: Type[], context: Context) {
+  static findMethods(klass: Class, name: string, argsTypes: Type[], env: Env) {
     const methods: Function[] = [];
 
     const index = (method: Function) => {
@@ -60,7 +60,7 @@ export default class TypesUtils {
     };
 
     const collect = (kls: Class) => {
-      if (kls.superClass !== undefined) collect(context.getClass(kls.superClass));
+      if (kls.superClass !== undefined) collect(env.getClass(kls.superClass));
       kls.functions
         .filter(method => method.name === name && method.parameters.length === argsTypes.length)
         .forEach(method => {
@@ -77,17 +77,17 @@ export default class TypesUtils {
   static findOverridedFunction(
     superClassName: string,
     overridingMethod: Function,
-    context: Context,
+    env: Env,
   ) {
     if (superClassName === undefined) return undefined;
-    let klass: Class = context.getClass(superClassName);
+    let klass: Class = env.getClass(superClassName);
     do {
       const method = klass.functions.find(m => m.equals(overridingMethod));
 
       if (method !== undefined) return method;
       if (klass.superClass === undefined) break;
 
-      klass = context.getClass(klass.superClass);
+      klass = env.getClass(klass.superClass);
     } while (klass.superClass !== undefined);
 
     return undefined;
@@ -96,24 +96,24 @@ export default class TypesUtils {
   static mostSpecificFunction(
     funcA: Function | undefined,
     funcB : Function | undefined,
-    context: Context,
+    env: Env,
   ) {
     if (funcA === undefined || funcB === undefined) return undefined;
 
     const paramsTypesA = funcA.parameters.map((param: Formal) => param.type);
     const paramsTypesB = funcB.parameters.map((param: Formal) => param.type);
 
-    if (this.allConform(paramsTypesA, paramsTypesB, context)) return funcA;
-    if (this.allConform(paramsTypesB, paramsTypesA, context)) return funcB;
+    if (this.allConform(paramsTypesA, paramsTypesB, env)) return funcA;
+    if (this.allConform(paramsTypesB, paramsTypesA, env)) return funcB;
 
     return undefined;
   }
 
-  static allConform(typesA: Type[], typesB: Type[], context: Context) {
+  static allConform(typesA: Type[], typesB: Type[], env: Env) {
     if (typesB.length !== typesA.length) return false;
 
     for (let i = 0, l = typesA.length; i < l; ++i) {
-      if (!this.conform(typesA[i], typesB[i], context)) return false;
+      if (!this.conform(typesA[i], typesB[i], env)) return false;
     }
 
     return true;
@@ -130,28 +130,28 @@ export default class TypesUtils {
     return true;
   }
 
-  static conform(typeA: Type, typeB: Type, context: Context) {
+  static conform(typeA: Type, typeB: Type, env: Env) {
     if (typeB === Types.Object) return true;
     if (typeA === typeB) return true;
 
     if (!this.isPrimitive(typeB) && typeA === Types.Null) return true;
 
-    const classA = context.getClass(typeA);
-    let classB = context.getClass(typeB);
+    const classA = env.getClass(typeA);
+    let classB = env.getClass(typeB);
 
     do {
       if (classA.superClass === classB.name) return true;
       if (classB.superClass === undefined) return false;
-      classB = context.getClass(classB.superClass);
+      classB = env.getClass(classB.superClass);
     } while (classB.name !== Types.Object);
 
     return false;
   }
 
-  static hasFunctionWithName(klass: Class, methodName: string, context: Context) {
+  static hasFunctionWithName(klass: Class, methodName: string, env: Env) {
     while (klass !== undefined) {
       if (klass.hasFunctionWithName(methodName)) return true;
-      klass = context.getClass(klass.superClass);
+      klass = env.getClass(klass.superClass);
     }
 
     return false;
