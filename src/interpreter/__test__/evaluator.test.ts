@@ -35,5 +35,13 @@ describe('Evaluator', () => {
       const value = Evaluator.evaluate(context, expression);
       expect(value.get('value')).toBe('Hello, world!');
     });
+
+    it('should evaluate an integer literal', () => {
+      const source = '42';
+      const expression = (new Parser(source)).parseExpression();
+      TypeChecker.typeCheck(typeEnv, expression);
+      const value = Evaluator.evaluate(context, expression);
+      expect(value.get('value')).toBe(42);
+    });
   });
 });
