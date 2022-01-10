@@ -35,6 +35,19 @@ export default class StringClass extends Class {
       return result;
     }), [new Formal('rhs', Types.Object)], true));
 
+    this.functions.push(new Function('!=', Types.Bool, new NativeExpression((context) => {
+      const rhs = context.store.get(context.environment.find('rhs')!);
+      const lhs = context.self!;
+      const result = Obj.create(context, Types.Bool);
+
+      if (rhs.type !== Types.String) {
+        result.set('value', false);
+      } else {
+        result.set('value', lhs.get('value') !== rhs.get('value'));
+      }
+      return result;
+    }), [new Formal('rhs', Types.Object)], true));
+
     this.functions.push(new Function('+', Types.String, new NativeExpression((context) => {
       const call = new FunctionCall('toString', [], new Reference('rhs'));
       const rhs = Evaluator.evaluate(context, call);
