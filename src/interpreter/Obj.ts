@@ -36,7 +36,7 @@ export default class Obj {
   static create(context: Context, className: string): Obj {
     const klass = context.getClass(className);
 
-    const object = klass.superClass !== undefined
+    const object = klass.superClass !== 'NO_SUPER_CLASS'
       ? Obj.create(context, klass.superClass)
       : new Obj(className);
 
