@@ -49,8 +49,8 @@ export default class TypeEnvironment implements Env {
     let classB = this.getClass(classNameB);
 
     do {
-      if (classA && classB && classA.superClass === classB.name) return true;
-      if (classB?.superClass === undefined) return false;
+      if (classA.superClass !== 'NO_SUPER_CLASS' && classA.superClass === classB.name) return true;
+      if (classB.superClass === 'NO_SUPER_CLASS') return false;
 
       classB = this.getClass(classB.superClass);
     } while (classB !== undefined);

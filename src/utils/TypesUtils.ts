@@ -11,20 +11,22 @@ export default class TypesUtils {
     const classA = env.getClass(typeA);
     const classB = env.getClass(typeB);
 
-    if (classA?.superClass === classB?.superClass) return classA?.superClass;
+    if (classA.superClass !== 'NO_SUPER_CLASS' && classA.superClass === classB.superClass) {
+      return classA.superClass;
+    }
     if (
       this.inheritanceIndex(typeA, Types.Object, env)
       > this.inheritanceIndex(typeB, Types.Object, env)
     ) {
-      return this.leastUpperBound(classA?.superClass, typeB, env);
+      return this.leastUpperBound(classA.superClass, typeB, env);
     }
 
-    return this.leastUpperBound(typeA, classB?.superClass, env);
+    return this.leastUpperBound(typeA, classB.superClass, env);
   }
 
   static inheritanceIndex(typeA: Type, typeB: Type, env: Env) {
     let index = 0;
-    while (typeA !== undefined && typeA !== typeB) {
+    while (typeA !== 'NO_SUPER_CLASS' && typeA !== typeB) {
       index++;
       typeA = env.getClass(typeA).superClass;
     }
@@ -60,7 +62,7 @@ export default class TypesUtils {
     };
 
     const collect = (kls: Class) => {
-      if (kls.superClass !== undefined) collect(env.getClass(kls.superClass));
+      if (kls.superClass !== 'NO_SUPER_CLASS') collect(env.getClass(kls.superClass));
       kls.functions
         .filter(method => method.name === name && method.parameters.length === argsTypes.length)
         .forEach(method => {
@@ -79,16 +81,16 @@ export default class TypesUtils {
     overridingMethod: Function,
     env: Env,
   ) {
-    if (superClassName === undefined) return undefined;
+    if (superClassName === 'NO_SUPER_CLASS') return undefined;
     let klass: Class = env.getClass(superClassName);
     do {
       const method = klass.functions.find(m => m.equals(overridingMethod));
 
       if (method !== undefined) return method;
-      if (klass.superClass === undefined) break;
+      if (klass.superClass === 'NO_SUPER_CLASS') break;
 
       klass = env.getClass(klass.superClass);
-    } while (klass.superClass !== undefined);
+    } while (klass.superClass !== 'NO_SUPER_CLASS');
 
     return undefined;
   }
@@ -141,7 +143,7 @@ export default class TypesUtils {
 
     do {
       if (classA.superClass === classB.name) return true;
-      if (classB.superClass === undefined) return false;
+      if (classB.superClass === 'NO_SUPER_CLASS') return false;
       classB = env.getClass(classB.superClass);
     } while (classB.name !== Types.Object);
 
@@ -149,7 +151,7 @@ export default class TypesUtils {
   }
 
   static hasFunctionWithName(klass: Class, methodName: string, env: Env) {
-    while (klass !== undefined) {
+    while (klass.superClass !== 'NO_SUPER_CLASS') {
       if (klass.hasFunctionWithName(methodName)) return true;
       klass = env.getClass(klass.superClass);
     }

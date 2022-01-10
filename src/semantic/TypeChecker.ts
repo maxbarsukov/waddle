@@ -186,7 +186,7 @@ export default class TypeChecker {
       );
     });
 
-    if (klass.superClass !== undefined) {
+    if (klass.superClass !== 'NO_SUPER_CLASS') {
       this.typeCheckConstructorCall(environment, new ConstructorCall(
         klass.superClass, klass.superClassArgs),
       );
