@@ -299,7 +299,7 @@ export default class Evaluator {
       object.set(klass.parameters[i].identifier, argsValues[i]);
     }
 
-    if (klass.superClass !== undefined) {
+    if (klass.superClass !== 'NO_SUPER_CLASS') {
       this.evaluateConstructorImpl(context, object, klass.superClass, klass.superClassArgs);
     }
 
