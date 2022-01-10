@@ -1,4 +1,5 @@
 import BoolClass from './BoolClass';
+import IntClass from './IntClass';
 import NullClass from './NullClass';
 import ObjectClass from './ObjectClass';
 import PredefClass from './PredefClass';
@@ -10,6 +11,7 @@ import { Class } from '../../ast';
 export default function getRuntime(): Class[] {
   return [
     new BoolClass(),
+    new IntClass(),
     new NullClass(),
     new ObjectClass(),
     new PredefClass(),
@@ -18,4 +20,4 @@ export default function getRuntime(): Class[] {
   ];
 }
 
-export { BoolClass, NullClass, ObjectClass, PredefClass, StringClass, VoidClass };
+export { BoolClass, IntClass, NullClass, ObjectClass, PredefClass, StringClass, VoidClass };
