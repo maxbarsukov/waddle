@@ -12,4 +12,5 @@ module.exports = {
   testPathIgnorePatterns: ["/node_modules/", "\\.d\\.ts$", "lib/.*", "lib-esm/.*"],
   watchPathIgnorePatterns: ["lib/.*", "lib-esm/.*"],
   moduleFileExtensions: ["js", "ts", "json"],
+  collectCoverage: true,
 };
