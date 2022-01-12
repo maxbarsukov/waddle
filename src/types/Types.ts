@@ -8,7 +8,7 @@ export const Types = {
   Predef: 'Predef',
   Null: 'Null',
   Math: 'Math$',
-  Console: 'Console$',
+  IO: 'IO$',
 };
 
 type Type = string;

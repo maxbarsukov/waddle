@@ -7,7 +7,7 @@ import {
 import Obj from '../Obj';
 import { Types } from '../../types/Types';
 
-export default class UnitClass extends Class {
+export default class VoidClass extends Class {
   constructor() {
     super(Types.Void);
     this.superClass = Types.Object;

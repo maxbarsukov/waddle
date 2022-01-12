@@ -1,6 +1,8 @@
 import BoolClass from './BoolClass';
 import DoubleClass from './DoubleClass';
 import IntClass from './IntClass';
+import IOClass from './IOClass';
+import MathClass from './MathClass';
 import NullClass from './NullClass';
 import ObjectClass from './ObjectClass';
 import PredefClass from './PredefClass';
@@ -14,6 +16,8 @@ export default function getRuntime(): Class[] {
     new BoolClass(),
     new DoubleClass(),
     new IntClass(),
+    new IOClass(),
+    new MathClass(),
     new NullClass(),
     new ObjectClass(),
     new PredefClass(),
@@ -26,6 +30,8 @@ export {
   BoolClass,
   DoubleClass,
   IntClass,
+  IOClass,
+  MathClass,
   NullClass,
   ObjectClass,
   PredefClass,
