@@ -8,5 +8,5 @@ if (args.length === 0) {
 } else if (args.length === 1) {
   interpreter.run(args[0]);
 } else {
-  console.log('usage: waddle <file>')
+  console.log('usage: waddle <file>');
 }
