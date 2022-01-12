@@ -13,14 +13,13 @@
     "url": "https://github.com/maxbarsukov/waddle/issues"
   },
   "type": "commonjs",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "lib/cli/index.js",
+  "types": "lib/cli/index.d.ts",
   "bin": {
-    "waddle": "./bin/repl.js"
+    "waddle": "bin/waddle.js"
   },
   "files": [
-    "lib",
-    "lib-esm"
+    "lib"
   ],
   "exports": {
     ".": {
@@ -29,10 +28,9 @@
     }
   },
   "scripts": {
-    "clean": "rimraf \"*.tsbuildinfo\" lib lib-esm",
-    "build": "npm run build:cjs && npm run build:esm",
+    "clean": "rimraf \"*.tsbuildinfo\" lib",
+    "build": "npm run build:cjs",
     "build:cjs": "tsc -p .",
-    "build:esm": "tsc -p tsconfig.esm.json",
     "start": "ts-node src/cli/index.ts",
     "test": "jest",
     "lint": "eslint --ext ts,json src",
