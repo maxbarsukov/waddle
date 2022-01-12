@@ -103,7 +103,7 @@ export default class Interpreter {
           input = '';
         }
       }
-    })
+    });
   }
 
   repl() {
@@ -143,7 +143,7 @@ export default class Interpreter {
               input += '\n';
               scanner.setPrompt('    | ');
             } else {
-              console.log(this.execute(input) + '\n');
+              console.log(`${this.execute(input)}\n`);
               input = '';
               scanner.setPrompt(this.DEFAULT_PROMPT);
             }
@@ -238,7 +238,9 @@ export default class Interpreter {
     const parser = new Parser(input);
     const property = parser.parseProperty();
 
-    const index = this.predefClass.properties.findIndex((variable) => variable.name === property.name);
+    const index = this.predefClass
+      .properties
+      .findIndex((variable) => variable.name === property.name);
     if (index !== -1) {
       this.predefClass.properties.splice(index, 1);
     }
@@ -298,7 +300,6 @@ export default class Interpreter {
           this.context.addClass(klass);
           console.log(`defined class ${klass.name}.`);
         });
-
       } catch (e) {
         // @ts-ignore
         console.log(`error: ${e.message}`);
