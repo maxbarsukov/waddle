@@ -52,19 +52,4 @@ describe('Runtime', () => {
       });
     });
   });
-
-  describe('MathClass', () => {
-    const testCases = {
-      'Math.ln2()': Math.LN2,
-    };
-
-    Object.entries(testCases).forEach(([source, ans]) => {
-      it(source, () => {
-        const expression = (new Parser(source)).parseExpression();
-        TypeChecker.typeCheck(typeEnv, expression);
-        const value = Evaluator.evaluate(context, expression);
-        expect(value.get('value')).toBe(ans);
-      });
-    });
-  });
 });
