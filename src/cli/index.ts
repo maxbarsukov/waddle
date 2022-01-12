@@ -1,6 +1,12 @@
 import Interpreter from '../interpreter';
 
-const inputPath = 'examples/hello.waddle.js';
-
 const interpreter = new Interpreter();
-interpreter.run(inputPath);
+const [, , ...args] = process.argv;
+
+if (args.length === 0) {
+  interpreter.repl();
+} else if (args.length === 1) {
+  interpreter.run(args[0]);
+} else {
+  console.log('usage: waddle <file>')
+}
