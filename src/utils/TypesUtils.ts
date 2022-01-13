@@ -156,7 +156,7 @@ export default class TypesUtils {
       klass = env.getClass(klass.superClass);
     }
 
-    return false;
+    return klass.hasFunctionWithName(methodName);
   }
 
   static isPrimitive(type: Type) {
