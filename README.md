@@ -68,6 +68,9 @@ null // res13: Null = null
 null.toString()
 
 100.unary_-() // res14: Int = -100
+
+1.instanceOf("Int") //res15: Bool = true
+1.instanceOf("String") //res16: Bool = false
 ```
 
 Booleans  :
