@@ -107,7 +107,7 @@ export default class Interpreter {
   }
 
   repl() {
-    console.log(`waddle v${process.env.npm_package_version}`);
+    console.log(`waddle v${process.env.npm_package_version || '1.0.0'}`);
     console.log(':quit or Ctrl-C to quit.\n');
 
     let prev = ' ';
