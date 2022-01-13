@@ -1,0 +1,55 @@
+class Fraction(n: Int, d: Int) {
+  var g: Int = gcd(Math.abs(n), Math.abs(d))
+
+  var num: Int = n / g
+  var den: Int = d / g
+
+  def num(): Int = num
+  def setNum(n: Int) = num = n / gcd(Math.abs(n), Math.abs(den))
+
+  def den(): Int = den
+  def setDen(d: Int) = den = d / gcd(Math.abs(num), Math.abs(d))
+
+  def +(that: Fraction): Fraction = new Fraction(
+    num * that.den() + den * that.num(),
+    den * that.den()
+  )
+
+  def +(that: Int): Fraction = this + new Fraction(that, 1)
+
+  def -(that: Fraction): Fraction = new Fraction(
+    num * that.den() - den * that.num(),
+    den * that.den()
+  )
+
+  def -(that: Int): Fraction = this - new Fraction(that, 1)
+  def *(that: Fraction): Fraction = new Fraction(num * that.num(), den * that.den())
+  def *(that: Int): Fraction = this * new Fraction(that, 1)
+  def /(that: Fraction): Fraction = this * new Fraction(that.den(), that.num())
+  def /(that: Int): Fraction = this / new Fraction(that, 1)
+
+  override def ==(that: Object): Bool = {
+    if (!that.instanceOf("Fraction"))
+      false
+    else {
+      let frac = that as Fraction in {
+        num == frac.num() && den == frac.den()
+      }
+    }
+  }
+
+  override def toString(): String = num + if (den > 1) "/" + den else ""
+
+  private def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
+}
+
+
+var  f1 = new Fraction(1, 2)
+var  f2 = new Fraction(5, 6)
+IO.println(f1 + f2) // 4/3
+IO.println(f1 * f2) // 5/12
+IO.println(f1 == f2) // false
+IO.println(new Fraction(5, 6) == f2) // true
+IO.println(f2) // 5/6
+f1.setDen(3)
+IO.println(f1) // 1/3
