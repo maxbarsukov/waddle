@@ -4,6 +4,10 @@
 [![Codecov](https://codecov.io/gh/maxbarsukov/waddle/branch/master/graph/badge.svg?token=DAVZ1WBI7Q)](https://codecov.io/gh/maxbarsukov/waddle)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/maxbarsukov/waddle)
 
+[![NPM version](https://img.shields.io/npm/v/waddle)](https://www.npmjs.com/package/waddle)
+[![NPM downloads](https://img.shields.io/npm/dy/waddle)](https://www.npmjs.com/package/waddle)
+[![License](https://img.shields.io/npm/l/waddle)](https://github.com/maxbarsukov/waddle/blob/master/LICENSE.txt)
+
 ***Waddle*** is a strongly-typed *object-oriented* toy programming language whose syntax is partially inspired by **Kotlin** and **Ruby**.
 
 - Object-oriented language.
