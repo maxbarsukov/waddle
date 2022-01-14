@@ -64,4 +64,35 @@ describe('Runtime', () => {
       });
     });
   });
+
+  describe('BoolClass', () => {
+    const testCases = {
+      'true.toString()': 'true',
+      'false.toString()': 'false',
+      'false == false': true,
+      'false == new Object()': false,
+      'true == 1': false,
+      'false != false': false,
+      'false != new Object()': true,
+      'true != 1': true,
+      '!true': false,
+      '!false': true,
+      '!!true': true,
+      '!!false': false,
+      'true && true': true,
+      'true && false': false,
+      'false && true': false,
+      'false && false': false,
+      'true || true': true,
+      'true || false': true,
+      'false || true': true,
+      'false || false': false,
+    };
+
+    Object.entries(testCases).forEach(([source, ans]) => {
+      it(source, () => {
+        check(source, ans, typeEnv, context);
+      });
+    });
+  });
 });
