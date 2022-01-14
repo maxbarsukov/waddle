@@ -28,6 +28,7 @@ describe('Runtime', () => {
 
   describe('IntClass', () => {
     const testCases = {
+      '1': 1,
       '1 + 2 + 3 + 4 + 5': 15,
       '(1 + 2) * 3 + 4 + 5': 18,
       '1 - 10': -9,
@@ -69,6 +70,7 @@ describe('Runtime', () => {
 
   describe('BoolClass', () => {
     const testCases = {
+      'true': true,
       'true.toString()': 'true',
       'false.toString()': 'false',
       'false == false': true,
@@ -102,6 +104,7 @@ describe('Runtime', () => {
 
   describe('DoubleClass', () => {
     const testCases = {
+      '1.3': 1.3,
       '1.0.toString()': '1',
       '1.1.toString()': '1.1',
       '2e2.toString()': '200',
@@ -145,6 +148,25 @@ describe('Runtime', () => {
       '11.1 >= 11.1': true,
       '1.0.instanceOf("Int")': false,
       '1.0.instanceOf("Double")': true,
+    };
+
+    Object.entries(testCases).forEach(([source, ans]) => {
+      it(source, () => {
+        check(source, ans, typeEnv, context);
+      });
+    });
+  });
+
+  describe('NullClass', () => {
+    const testCases = {
+      'null': undefined,
+      'null.toString()': 'null',
+      'null == null': true,
+      'null == new Object()': false,
+      'null == 0': false,
+      'null != null': false,
+      'null != new Object()': true,
+      'null != 0': true,
     };
 
     Object.entries(testCases).forEach(([source, ans]) => {
