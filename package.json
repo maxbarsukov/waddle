@@ -34,7 +34,8 @@
     "start": "ts-node src/cli/index.ts",
     "test": "jest",
     "lint": "eslint --ext ts,json src",
-    "lint:fix": "eslint --ext ts,json --fix src"
+    "lint:fix": "eslint --ext ts,json --fix src",
+    "codecov": "codecov"
   },
   "dependencies": {
     "readline-sync": "^1.4.10"
