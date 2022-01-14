@@ -227,4 +227,35 @@ describe('Runtime', () => {
       });
     });
   });
+
+  describe('StringClass', () => {
+    const testCases = {
+      '""': '',
+      '"A"': 'A',
+      '"A".toString()': 'A',
+      '"A" + "B"': 'AB',
+      '("A" + "B").toString()': 'AB',
+      '"ab" == "ab"': true,
+      '"ab" != "ab"': false,
+      '"ab" == "abc"': false,
+      '"ab" == 1': false,
+      '"ab" != 1': false,
+      '"ab" != "abc"': true,
+      '"abc".at(0)': 'a',
+      '"abc".at(2)': 'c',
+      '"abc".at(-1)': '',
+      '"abc".length()': 3,
+      '"".length()': 0,
+      '"abcde".contains("a")': true,
+      '"abcde".contains("b")': true,
+      '"abcde".contains("abc")': true,
+      '"abcde".contains("abcde")': true,
+    };
+
+    Object.entries(testCases).forEach(([source, ans]) => {
+      it(source, () => {
+        check(source, ans, typeEnv, context);
+      });
+    });
+  });
 });
