@@ -213,4 +213,18 @@ describe('Runtime', () => {
       });
     });
   });
+
+  describe('PredefClass', () => {
+    const testCases = {
+      'new Predef()': undefined,
+      'new Predef().instanceOf("Predef")': true,
+      'new Predef().toString()': '__predef__',
+    };
+
+    Object.entries(testCases).forEach(([source, ans]) => {
+      it(source, () => {
+        check(source, ans, typeEnv, context);
+      });
+    });
+  });
 });
