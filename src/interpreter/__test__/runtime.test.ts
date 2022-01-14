@@ -5,6 +5,13 @@ import Parser from '../../parser';
 import TypeChecker from '../../semantic/TypeChecker';
 import Evaluator from '../Evaluator';
 
+function check(source: string, ans: any, typeEnv: TypeEnvironment, context: Context) {
+  const expression = (new Parser(source)).parseExpression();
+  TypeChecker.typeCheck(typeEnv, expression);
+  const value = Evaluator.evaluate(context, expression);
+  expect(value.get('value')).toBe(ans);
+}
+
 describe('Runtime', () => {
   const typeEnv = new TypeEnvironment();
   const context = new Context();
@@ -37,18 +44,23 @@ describe('Runtime', () => {
       '10 == 11': false,
       '10 != 11': true,
       '10 != 10': false,
+      '10 == new Object()': false,
+      '10 != new Object()': false,
       '10 > 1': true,
       '10 > 11': false,
       '10 < 1': false,
       '10 < 11': true,
+      '10 >= 1': true,
+      '10 >= 11': false,
+      '10 <= 1': false,
+      '10 <= 11': true,
+      '11 <= 11': true,
+      '11 >= 11': true,
     };
 
     Object.entries(testCases).forEach(([source, ans]) => {
       it(source, () => {
-        const expression = (new Parser(source)).parseExpression();
-        TypeChecker.typeCheck(typeEnv, expression);
-        const value = Evaluator.evaluate(context, expression);
-        expect(value.get('value')).toBe(ans);
+        check(source, ans, typeEnv, context);
       });
     });
   });
