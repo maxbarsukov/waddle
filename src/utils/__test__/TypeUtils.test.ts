@@ -1,11 +1,24 @@
 import TypesUtils from '../TypesUtils';
-import { Class } from '../../ast';
+import { Class, Expression, Formal, Function } from '../../ast';
 import { Types } from '../../types/Types';
 import Context from '../../interpreter/Context';
 import getRuntime from '../../interpreter/runtime';
 import TypeEnvironment from '../../semantic/TypeEnvironment';
 
 describe('TypesUtils', () => {
+  const typeEnv = new TypeEnvironment();
+  const context = new Context();
+
+  const runtimeClasses = getRuntime();
+  runtimeClasses.forEach(cls => {
+    typeEnv.addClass(cls);
+    context.addClass(cls);
+  });
+
+  beforeEach(() => {
+    typeEnv.symbolTable.clear();
+  });
+
   it('#isIternal', () => {
     expect(TypesUtils.isIternal('int')).toBe(true);
     expect(TypesUtils.isIternal('double')).toBe(true);
@@ -25,18 +38,9 @@ describe('TypesUtils', () => {
   });
 
   it('#hasFunctionWithName', () => {
-    const typeEnvironment = new TypeEnvironment();
-    const context = new Context();
-
-    const classes = getRuntime();
-    classes.forEach(cl => {
-      typeEnvironment.addClass(cl);
-      context.addClass(cl);
-    });
-
     const a = new Class('A');
     a.superClass = Types.Object;
-    expect(TypesUtils.hasFunctionWithName(a, 'toString', typeEnvironment));
+    expect(TypesUtils.hasFunctionWithName(a, 'toString', typeEnv));
   });
 
   it('#allEqual', () => {
@@ -63,9 +67,35 @@ describe('TypesUtils', () => {
   });
 
   it('#mostSpecificFunction', () => {
-    // const f1 = new Function();
-    // const f2 = new Function();
-    const env = new TypeEnvironment();
-    expect(TypesUtils.mostSpecificFunction(undefined, undefined, env)).toBe(undefined);
+    const f1 = new Function(
+      'fun1',
+      Types.String,
+      new Expression(),
+      [new Formal('a', Types.Int), new Formal('b', Types.String)],
+    );
+    const f2 = new Function(
+      'fun2',
+      Types.String,
+      new Expression(),
+      [new Formal('x', Types.Int), new Formal('y', Types.String)],
+    );
+    const f3 = new Function(
+      'fun3',
+      Types.String,
+      new Expression(),
+      [new Formal('y', Types.String), new Formal('x', Types.Int)],
+    );
+    const f4 = new Function(
+      'fun4',
+      Types.String,
+      new Expression(),
+      [new Formal('s', Types.Int)],
+    );
+    expect(TypesUtils.mostSpecificFunction(undefined, undefined, typeEnv)).toBe(undefined);
+    expect(TypesUtils.mostSpecificFunction(f1, undefined, typeEnv)).toBe(undefined);
+    expect(TypesUtils.mostSpecificFunction(f1, f2, typeEnv)).toBe(f1);
+    expect(TypesUtils.mostSpecificFunction(f2, f1, typeEnv)).toBe(f2);
+    expect(TypesUtils.mostSpecificFunction(f1, f3, typeEnv)).toBe(undefined);
+    expect(TypesUtils.mostSpecificFunction(f1, f4, typeEnv)).toBe(undefined);
   });
 });
