@@ -1,9 +1,10 @@
 import TypesUtils from '../TypesUtils';
-import { Class, Expression, Formal, Function } from '../../ast';
+import { Class, Expression, Formal, Function, NativeExpression } from '../../ast';
 import { Types } from '../../types/Types';
 import Context from '../../interpreter/Context';
 import getRuntime from '../../interpreter/runtime';
 import TypeEnvironment from '../../semantic/TypeEnvironment';
+import Obj from '../../interpreter/Obj';
 
 describe('TypesUtils', () => {
   const typeEnv = new TypeEnvironment();
@@ -98,5 +99,90 @@ describe('TypesUtils', () => {
     expect(TypesUtils.mostSpecificFunction(f2, f1, typeEnv)).toBe(f2);
     expect(TypesUtils.mostSpecificFunction(f1, f3, typeEnv)).toBe(undefined);
     expect(TypesUtils.mostSpecificFunction(f1, f4, typeEnv)).toBe(undefined);
+  });
+
+  it('#inheritanceIndex', () => {
+    const a = new Class('A');
+    a.superClass = Types.Object;
+    const b = new Class('B');
+    b.superClass = 'A';
+    typeEnv.addClass(a);
+    typeEnv.addClass(b);
+    expect(TypesUtils.inheritanceIndex(Types.Object, Types.Object, typeEnv)).toBe(0);
+    expect(TypesUtils.inheritanceIndex(Types.Int, Types.Object, typeEnv)).toBe(1);
+    expect(TypesUtils.inheritanceIndex('A', Types.Object, typeEnv)).toBe(1);
+    expect(TypesUtils.inheritanceIndex('B', Types.Object, typeEnv)).toBe(2);
+    expect(TypesUtils.inheritanceIndex('B', 'A', typeEnv)).toBe(1);
+  });
+
+  it('#findMethodToApply', () => {
+    const a = new Class('A');
+    a.superClass = Types.Object;
+    const func = new Function(
+      'method', Types.String, new NativeExpression((ctx) => {
+        const arg = ctx.store.get(ctx.environment.find('a')!);
+        const value = Obj.create(ctx, Types.String);
+        value.set('value', arg.get('value').toString());
+        return value;
+      }), [new Formal('a', Types.Int, true)]);
+
+    a.functions.push(func);
+    typeEnv.addClass(a);
+
+    expect(TypesUtils.findMethodToApply(a, 'anotherMethod', ['Int'], typeEnv))
+      .toBe(undefined);
+
+    expect(TypesUtils.findMethodToApply(a, 'method', ['String'], typeEnv))
+      .toBe(undefined);
+
+    expect(TypesUtils.findMethodToApply(a, 'method', ['Int'], typeEnv))
+      .toBe(func);
+  });
+
+  it('#findOverridedFunction', () => {
+    const a = new Class('A');
+    a.superClass = Types.Object;
+    const func = new Function(
+      'method', Types.Bool, new NativeExpression((ctx) => {
+        const value = Obj.create(ctx, Types.Bool);
+        value.set('value', false);
+        return value;
+      }), [new Formal('a', Types.Int, true)]);
+
+    a.functions.push(func);
+    typeEnv.addClass(a);
+
+    const b = new Class('B');
+    b.superClass = 'A';
+    typeEnv.addClass(b);
+
+    expect(TypesUtils.findOverridedFunction('NO_SUPER_CLASS', func, typeEnv)).toBe(undefined);
+    expect(TypesUtils.findOverridedFunction('A', func, typeEnv)).toBe(func);
+    expect(TypesUtils.findOverridedFunction('B', func, typeEnv)).toBe(func);
+    expect(TypesUtils.findOverridedFunction(Types.Object, func, typeEnv)).toBe(undefined);
+  });
+
+  it('#leastUpperBound', () => {
+    const a = new Class('A');
+    a.superClass = Types.Object;
+    typeEnv.addClass(a);
+
+    const b = new Class('B');
+    b.superClass = 'A';
+    typeEnv.addClass(b);
+
+    const c = new Class('C');
+    c.superClass = Types.Object;
+    typeEnv.addClass(c);
+
+    expect(TypesUtils.leastUpperBound('A', 'A', typeEnv)).toBe('A');
+    expect(TypesUtils.leastUpperBound(Types.Object, Types.Object, typeEnv)).toBe(Types.Object);
+    expect(TypesUtils.leastUpperBound('A', Types.Null, typeEnv)).toBe('A');
+    expect(TypesUtils.leastUpperBound(Types.Null, 'B', typeEnv)).toBe('B');
+    expect(TypesUtils.leastUpperBound('A', 'B', typeEnv)).toBe('A');
+    expect(TypesUtils.leastUpperBound('B', 'A', typeEnv)).toBe('A');
+    expect(TypesUtils.leastUpperBound('B', Types.Object, typeEnv)).toBe(Types.Object);
+    expect(TypesUtils.leastUpperBound(Types.Object, 'A', typeEnv)).toBe(Types.Object);
+    expect(TypesUtils.leastUpperBound('A', 'C', typeEnv)).toBe(Types.Object);
   });
 });
