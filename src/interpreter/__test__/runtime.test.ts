@@ -175,4 +175,28 @@ describe('Runtime', () => {
       });
     });
   });
+
+  describe('ObjectClass', () => {
+    const testCases = {
+      'new Object()': undefined,
+      'new Object().instanceOf("Object")': true,
+      'new Object().instanceOf("Int")': false,
+      'new Object().toString()': 'Object@undefined',
+      'new Object() == new Object()': false,
+      'new Object() == 1': false,
+      'new Object() == null': false,
+      'new Object() == "Object@undefined"': false,
+      'new Object() != new Object()': true,
+      'new Object() != 1': true,
+      'new Object() != null': true,
+      'new Object() != "Object@undefined"': true,
+      'new Object() + "AAA"': 'Object@undefinedAAA',
+    };
+
+    Object.entries(testCases).forEach(([source, ans]) => {
+      it(source, () => {
+        check(source, ans, typeEnv, context);
+      });
+    });
+  });
 });
