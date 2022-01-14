@@ -1,5 +1,5 @@
 import TypesUtils from '../TypesUtils';
-import { Class, Function } from '../../ast';
+import { Class } from '../../ast';
 import { Types } from '../../types/Types';
 import Context from '../../interpreter/Context';
 import getRuntime from '../../interpreter/runtime';
