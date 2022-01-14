@@ -28,7 +28,7 @@ describe('Runtime', () => {
 
   describe('IntClass', () => {
     const testCases = {
-      '1': 1,
+      1: 1,
       '1 + 2 + 3 + 4 + 5': 15,
       '(1 + 2) * 3 + 4 + 5': 18,
       '1 - 10': -9,
@@ -70,7 +70,7 @@ describe('Runtime', () => {
 
   describe('BoolClass', () => {
     const testCases = {
-      'true': true,
+      true: true,
       'true.toString()': 'true',
       'false.toString()': 'false',
       'false == false': true,
@@ -104,7 +104,7 @@ describe('Runtime', () => {
 
   describe('DoubleClass', () => {
     const testCases = {
-      '1.3': 1.3,
+      1.3: 1.3,
       '1.0.toString()': '1',
       '1.1.toString()': '1.1',
       '2e2.toString()': '200',
@@ -159,7 +159,7 @@ describe('Runtime', () => {
 
   describe('NullClass', () => {
     const testCases = {
-      'null': undefined,
+      null: undefined,
       'null.toString()': 'null',
       'null == null': true,
       'null == new Object()': false,
@@ -191,6 +191,20 @@ describe('Runtime', () => {
       'new Object() != null': true,
       'new Object() != "Object@undefined"': true,
       'new Object() + "AAA"': 'Object@undefinedAAA',
+    };
+
+    Object.entries(testCases).forEach(([source, ans]) => {
+      it(source, () => {
+        check(source, ans, typeEnv, context);
+      });
+    });
+  });
+
+  describe('VoidClass', () => {
+    const testCases = {
+      'new Void()': undefined,
+      'new Void().instanceOf("Void")': true,
+      'new Void().toString()': '()',
     };
 
     Object.entries(testCases).forEach(([source, ans]) => {
