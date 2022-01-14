@@ -78,8 +78,7 @@ export default class StringClass extends Class {
       const s = context.store.get(context.environment.find('s')!);
       const self = context.self!;
       const value = Obj.create(context, Types.Bool);
-
-      value.set('value', self.get('value').search(s.get('value')) > 0);
+      value.set('value', self.get('value').includes(s.get('value')));
       return value;
     }), [new Formal('s', Types.String)]));
 
