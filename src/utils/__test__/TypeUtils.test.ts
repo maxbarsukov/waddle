@@ -40,7 +40,8 @@ describe('TypesUtils', () => {
   it('#hasFunctionWithName', () => {
     const a = new Class('A');
     a.superClass = Types.Object;
-    expect(TypesUtils.hasFunctionWithName(a, 'toString', typeEnv));
+    expect(TypesUtils.hasFunctionWithName(a, 'toString', typeEnv)).toBe(true);
+    expect(TypesUtils.hasFunctionWithName(a, 'someFunc', typeEnv)).toBe(false);
   });
 
   it('#allEqual', () => {
