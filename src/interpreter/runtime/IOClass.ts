@@ -1,6 +1,5 @@
 import * as process from 'process';
-// @ts-ignore
-import * as readline from 'readline-sync';
+import readline from 'readline-sync';
 import Evaluator from '../Evaluator';
 
 import {
