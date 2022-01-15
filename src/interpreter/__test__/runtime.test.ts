@@ -1,3 +1,5 @@
+import readline from 'readline-sync';
+
 import TypeEnvironment from '../../semantic/TypeEnvironment';
 import Context from '../Context';
 import getRuntime from '../runtime';
@@ -394,6 +396,87 @@ describe('Runtime', () => {
       const value = Evaluator.evaluate(context, expression);
       expect(value.get('value')).toBeGreaterThanOrEqual(1);
       expect(value.get('value')).toBeLessThanOrEqual(5);
+    });
+  });
+
+  describe('IOClass', () => {
+    const log = console.log;
+    const question = readline.question;
+    const questionInt = readline.questionInt;
+    const questionFloat = readline.questionFloat;
+
+    beforeEach(() => {
+      console.log = jest.fn();
+      readline.question = jest.fn();
+      readline.questionInt = jest.fn();
+      readline.questionFloat = jest.fn();
+    });
+
+    afterAll(() => {
+      console.log = log;
+      readline.question = question;
+      readline.questionInt = questionInt;
+      readline.questionFloat = questionFloat;
+    });
+
+    const testCases = {
+      'new IO$()': undefined,
+      'new IO$().instanceOf("IO$")': true,
+      'new IO$().toString()': 'IO$@undefined',
+    };
+
+    Object.entries(testCases).forEach(([source, ans]) => {
+      it(source, () => {
+        check(source, ans, typeEnv, context);
+      });
+    });
+
+    const testCasesPrint = {
+      'new IO$().println(1)': '1',
+      'new IO$().println("")': '',
+      'new IO$().println("Hello World")': 'Hello World',
+      'new IO$().println(new Object())': 'Object@0',
+    };
+
+    Object.entries(testCasesPrint).forEach(([source, ans]) => {
+      it(source, () => {
+        const consoleSpy = jest.spyOn(console, 'log');
+        const expression = (new Parser(source)).parseExpression();
+        TypeChecker.typeCheck(typeEnv, expression);
+        Evaluator.evaluate(context, expression);
+        expect(consoleSpy).toHaveBeenCalledWith(ans);
+      });
+    });
+
+    it('new IO$().println()', () => {
+      const consoleSpy = jest.spyOn(console, 'log');
+      const expression = (new Parser('new IO$().println()')).parseExpression();
+      TypeChecker.typeCheck(typeEnv, expression);
+      Evaluator.evaluate(context, expression);
+      expect(consoleSpy).toHaveBeenCalledWith();
+    });
+
+    const questionIntSpy = jest.spyOn(readline, 'questionInt');
+    const questionFloatSpy = jest.spyOn(readline, 'questionFloat');
+    const questionSpy = jest.spyOn(readline, 'question');
+
+    const testCasesRead = {
+      questionIntSpy: ['new IO$().readInt("Hi")', 'new IO$().readInt()'],
+      questionSpy: ['new IO$().readString("Hi")', 'new IO$().readString()'],
+      questionFloatSpy: ['new IO$().readDouble("Hi")', 'new IO$().readDouble()'],
+    };
+
+    Object.entries(testCasesRead).forEach(([spy, sources]) => {
+      sources.forEach(source => {
+        it(`${source}: ${spy}`, () => {
+          const expression = (new Parser(source)).parseExpression();
+          TypeChecker.typeCheck(typeEnv, expression);
+          Evaluator.evaluate(context, expression);
+          expect(questionIntSpy).toHaveBeenCalledTimes(0);
+          expect(questionFloatSpy).toHaveBeenCalledTimes(0);
+          expect(questionSpy).toHaveBeenCalledTimes(0);
+        });
+      });
     });
   });
 });
