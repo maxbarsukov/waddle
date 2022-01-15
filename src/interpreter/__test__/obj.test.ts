@@ -1,5 +1,5 @@
 import Obj from '../Obj';
-import { Function, NativeExpression } from '../../ast';
+import { Formal, Function, NativeExpression } from '../../ast';
 import { Types } from '../../types/Types';
 import Context from '../Context';
 import getRuntime from '../runtime';
@@ -19,7 +19,13 @@ describe('Obj', () => {
     return value;
   }), [], true);
 
-  obj.functions.push(func1, func2);
+  const func3 = new Function('method2', Types.String, new NativeExpression((context) => {
+    const value = Obj.create(context, Types.String);
+    value.set('value', context.self!.get('value').toString());
+    return value;
+  }), [new Formal('a', Types.String)], true);
+
+  obj.functions.push(func1, func2, func3);
 
   describe('#getMethod', () => {
     it('should get null if there is no method', () => {
@@ -81,6 +87,26 @@ describe('Obj', () => {
       ]);
 
       expect(obj.toString()).toBe('SomeType(keyInt: 1, keyString: Str)');
+    });
+  });
+
+  describe('#getMostSpecificFunction', () => {
+    const context = new Context();
+
+    const runtimeClasses = getRuntime();
+    runtimeClasses.forEach(cls => {
+      context.addClass(cls);
+    });
+
+    const emptyObj = new Obj();
+
+    it('returns undefined if no functions', () => {
+      expect(emptyObj.getMostSpecificFunction('method', [], context)).toBe(undefined);
+    });
+
+    it('returns undefined if no for argList found', () => {
+      expect(obj.getMostSpecificFunction('method2', [Types.Int], context))
+        .toBe(undefined);
     });
   });
 });
