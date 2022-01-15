@@ -302,4 +302,98 @@ describe('Runtime', () => {
       });
     });
   });
+
+  describe('MathClass', () => {
+    const testCases = {
+      'new Math$()': undefined,
+      'new Math$().instanceOf("Math$")': true,
+      'new Math$().toString()': 'Math$@undefined',
+      'new Math$().e()': Math.E,
+      'new Math$().ln2()': Math.LN2,
+      'new Math$().ln10()': Math.LN10,
+      'new Math$().log2e()': Math.LOG2E,
+      'new Math$().log10e()': Math.LOG10E,
+      'new Math$().pi()': Math.PI,
+      'new Math$().abs(1.1)': 1.1,
+      'new Math$().abs(-1.1)': 1.1,
+      'new Math$().abs(1)': 1,
+      'new Math$().abs(-1)': 1,
+      'new Math$().acos(0.5)': Math.acos(0.5),
+      'new Math$().acos(1)': Math.acos(1),
+      'new Math$().acosh(2)': Math.acosh(2),
+      'new Math$().acosh(0.5)': Math.acosh(0.5),
+      'new Math$().asin(0.5)': Math.asin(0.5),
+      'new Math$().asin(1)': Math.asin(1),
+      'new Math$().asinh(2)': Math.asinh(2),
+      'new Math$().asinh(0.5)': Math.asinh(0.5),
+      'new Math$().atan(0.5)': Math.atan(0.5),
+      'new Math$().atan(1)': Math.atan(1),
+      'new Math$().atanh(2)': Math.atanh(2),
+      'new Math$().atanh(0.5)': Math.atanh(0.5),
+      'new Math$().cos(0.5)': Math.cos(0.5),
+      'new Math$().cos(1)': Math.cos(1),
+      'new Math$().cosh(0.5)': Math.cosh(0.5),
+      'new Math$().cosh(1)': Math.cosh(1),
+      'new Math$().ceil(1.1)': 2,
+      'new Math$().ceil(1.9)': 2,
+      'new Math$().ceil(1.5)': 2,
+      'new Math$().ceil(1)': 1,
+      'new Math$().floor(1.1)': 1,
+      'new Math$().floor(1.9)': 1,
+      'new Math$().floor(1.5)': 1,
+      'new Math$().floor(1)': 1,
+      'new Math$().log(10)': Math.log(10),
+      'new Math$().log(2.5)': Math.log(2.5),
+      'new Math$().log2(4)': Math.log2(4),
+      'new Math$().log2(16.5)': Math.log2(16.5),
+      'new Math$().log10(100)': 2,
+      'new Math$().log10(16.5)': Math.log10(16.5),
+      'new Math$().max(1.1, 1)': 1.1,
+      'new Math$().max(1, 2.1)': 2.1,
+      'new Math$().max(1, 3)': 3,
+      'new Math$().max(15.9, 16.1)': 16.1,
+      'new Math$().min(1.1, 1)': 1,
+      'new Math$().min(1, 2.1)': 1,
+      'new Math$().min(1, 3)': 1,
+      'new Math$().min(15.9, 16.1)': 15.9,
+      'new Math$().pow(2, 4)': 16,
+      'new Math$().pow(2.1, 3)': 2.1 ** 3,
+      'new Math$().pow(2, 3.5)': 2 ** 3.5,
+      'new Math$().pow(0.2, 3.5)': 0.2 ** 3.5,
+      'new Math$().round(1)': 1,
+      'new Math$().round(1.1)': 1,
+      'new Math$().round(1.5)': 2,
+      'new Math$().round(1.9)': 2,
+      'new Math$().sqrt(4)': 2,
+      'new Math$().sqrt(5.2)': Math.sqrt(5.2),
+      'new Math$().sin(0.5)': Math.sin(0.5),
+      'new Math$().sin(1)': Math.sin(1),
+      'new Math$().trunc(1.0)': Math.trunc(1.0),
+      'new Math$().trunc(1.1)': Math.trunc(1.1),
+      'new Math$().trunc(1.5)': Math.trunc(1.5),
+      'new Math$().trunc(1.99)': Math.trunc(1.99),
+    };
+
+    Object.entries(testCases).forEach(([source, ans]) => {
+      it(source, () => {
+        check(source, ans, typeEnv, context);
+      });
+    });
+
+    it('new Math$().random()', () => {
+      const expression = (new Parser('new Math$().random()')).parseExpression();
+      TypeChecker.typeCheck(typeEnv, expression);
+      const value = Evaluator.evaluate(context, expression);
+      expect(value.get('value')).toBeGreaterThanOrEqual(0);
+      expect(value.get('value')).toBeLessThanOrEqual(1);
+    });
+
+    it('new Math$().random(1, 5)', () => {
+      const expression = (new Parser('new Math$().random(1, 5)')).parseExpression();
+      TypeChecker.typeCheck(typeEnv, expression);
+      const value = Evaluator.evaluate(context, expression);
+      expect(value.get('value')).toBeGreaterThanOrEqual(1);
+      expect(value.get('value')).toBeLessThanOrEqual(5);
+    });
+  });
 });
