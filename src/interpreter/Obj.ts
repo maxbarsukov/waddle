@@ -139,8 +139,8 @@ export default class Obj {
   toString() {
     let str = `${this.type}(`;
 
-    const l = this.properties.keys.length;
     const keys = Array.from(this.properties.keys());
+    const l = keys.length;
 
     for (let i = 0; i < l - 1; ++i) {
       str += `${keys[i]}: ${this.properties.get(keys[i])}, `;
