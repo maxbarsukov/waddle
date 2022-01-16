@@ -5,7 +5,14 @@ import TypeChecker from '../../semantic/TypeChecker';
 import TypeEnvironment from '../../semantic/TypeEnvironment';
 import getRuntime from '../runtime';
 import { Types } from '../../types/Types';
-import { Expression, FunctionCall } from '../../ast';
+import {
+  BooleanLiteral,
+  Cast,
+  Expression,
+  FunctionCall,
+  Initialization,
+  StringLiteral,
+} from '../../ast';
 import Obj from '../Obj';
 
 describe('Evaluator', () => {
@@ -142,6 +149,20 @@ describe('Evaluator', () => {
       const value = Evaluator.evaluate(context, expression);
       context.environment.exitScope();
       expect(value.get('value')).toBe(10);
+    });
+
+    it('should evaluate initialization', () => {
+      const expression = new Initialization('a', Types.String, new StringLiteral('"hello"'));
+      TypeChecker.typeCheck(typeEnv, expression);
+      const value = Evaluator.evaluate(context, expression);
+      expect(value.get('value')).toBe('hello');
+    });
+
+    it('should evaluate cast', () => {
+      const expression = new Cast(new BooleanLiteral('true'), Types.Bool);
+      TypeChecker.typeCheck(typeEnv, expression);
+      const value = Evaluator.evaluate(context, expression);
+      expect(value.get('value')).toBe(true);
     });
 
     it('should evaluate an undefined literal', () => {
