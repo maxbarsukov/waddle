@@ -1,0 +1,6 @@
+class A {
+  def a(): String = super.toString()
+}
+
+IO.println(new A().a()) // A@0
+
