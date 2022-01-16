@@ -3,6 +3,15 @@ import { Types } from '../../../types/Types';
 import { Expression, Formal } from '../..';
 
 describe('Function', () => {
+  it('should create Func without params', () => {
+    const f = new Function(
+      'myFunc',
+      Types.String,
+      new Expression(),
+    );
+    expect(f.parameters.length).toBe(0);
+  });
+
   describe('#signature', () => {
     it('should generate signature', () => {
       const f = new Function(
