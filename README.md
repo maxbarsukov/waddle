@@ -248,6 +248,28 @@ class Fraction(n: Int, d: Int) {
 }
 ```
 
+Super:
+```kotlin
+class A {
+  def a(): String = super.toString()
+}
+
+IO.println(new A().a()) // A@0
+```
+
+This:
+```kotlin
+class B {
+  def b(): B = this
+}
+
+var b = new B()
+IO.println(b.b()) // B@2
+IO.println(b.b().b().b().b().b()) // B@3
+```
+
+Lists: [examples/list.waddle](https://github.com/maxbarsukov/waddle/tree/master/docs)
+
 ## Building
 
 ### Pre-reqs
