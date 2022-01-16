@@ -371,7 +371,7 @@ export default class Parser {
     this.expect(TokenType.In);
 
     const body = this.parseExpression();
-    return new Let(initializations, body);
+    return new Let(body, initializations);
   }
 
   parseFunction() {
