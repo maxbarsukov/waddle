@@ -4,22 +4,25 @@ import Parser from '../../parser';
 import TypeChecker from '../../semantic/TypeChecker';
 import TypeEnvironment from '../../semantic/TypeEnvironment';
 import getRuntime from '../runtime';
+import { Types } from '../../types/Types';
+import { Expression, FunctionCall } from '../../ast';
+import Obj from '../Obj';
 
 describe('Evaluator', () => {
+  const typeEnv = new TypeEnvironment();
+  const context = new Context();
+
+  const runtimeClasses = getRuntime();
+  runtimeClasses.forEach(cls => {
+    typeEnv.addClass(cls);
+    context.addClass(cls);
+  });
+
+  beforeEach(() => {
+    typeEnv.symbolTable.clear();
+  });
+
   describe('#evaluate', () => {
-    const typeEnv = new TypeEnvironment();
-    const context = new Context();
-
-    const runtimeClasses = getRuntime();
-    runtimeClasses.forEach(cls => {
-      typeEnv.addClass(cls);
-      context.addClass(cls);
-    });
-
-    beforeEach(() => {
-      typeEnv.symbolTable.clear();
-    });
-
     it('should evaluate a boolean literal', () => {
       const source = 'false';
       const expression = (new Parser(source)).parseExpression();
@@ -97,6 +100,30 @@ describe('Evaluator', () => {
       expect(value.get('den').get('value')).toBe(4);
     });
 
+    it('should evaluate a super call', () => {
+      const classSource = `
+        class A {
+          var s: String = super.toString()
+         }
+      `;
+
+      const klass = (new Parser(classSource)).parseClass();
+      typeEnv.addClass(klass);
+      context.addClass(klass);
+      TypeChecker.typeCheckClass(typeEnv, klass);
+
+      const source = 'new A()';
+      const expression = (new Parser(source)).parseExpression();
+      TypeChecker.typeCheck(typeEnv, expression);
+
+      const value = Evaluator.evaluate(context, expression);
+
+      expect(value.type).toBe('A');
+
+      expect(value.has('s')).toBe(true);
+      expect(value.get('s').get('value')).toBe('A@undefined');
+    });
+
     it('should evaluate a reference', () => {
       const source = 'let n = 42 in n + 1';
       const expression = (new Parser(source)).parseExpression();
@@ -105,6 +132,40 @@ describe('Evaluator', () => {
       const value = Evaluator.evaluate(context, expression);
       context.environment.exitScope();
       expect(value.get('value')).toBe(43);
+    });
+
+    it('should evaluate a while', () => {
+      const source = 'let n = 0 in { while(n < 10) { n = n + 1 }\n n}';
+      const expression = (new Parser(source)).parseExpression();
+      TypeChecker.typeCheck(typeEnv, expression);
+      context.environment.enterScope();
+      const value = Evaluator.evaluate(context, expression);
+      context.environment.exitScope();
+      expect(value.get('value')).toBe(10);
+    });
+
+    it('should evaluate an undefined literal', () => {
+      const value = Evaluator.evaluate(context, undefined);
+      expect(value.type).toBe(Types.Void);
+    });
+
+    it('should throw error if can\'t evaluate expression', () => {
+      const t = () => Evaluator.evaluate(context, new Expression());
+      expect(t).toThrow(Error);
+    });
+  });
+
+  describe('#evaluateFunctionCallImpl', () => {
+    it('should throw error if func is undefined', () => {
+      const t = () => {
+        Evaluator.evaluateFunctionCallImpl(
+          context,
+          new Obj('Type'),
+          undefined,
+          new FunctionCall('name'),
+        );
+      };
+      expect(t).toThrow(Error);
     });
   });
 });
