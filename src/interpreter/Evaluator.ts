@@ -189,6 +189,8 @@ export default class Evaluator {
 
     const address = context.store.alloc(value);
     context.environment.add(init.identifier, address);
+
+    return value;
   }
 
   static evaluateIntegerLiteral(context: Context, integer: IntegerLiteral) {
