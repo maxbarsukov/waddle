@@ -6,6 +6,7 @@ import TypeEnvironment from '../../semantic/TypeEnvironment';
 import getRuntime from '../runtime';
 import { Types } from '../../types/Types';
 import {
+  Assignment,
   BooleanLiteral,
   Cast,
   Expression,
@@ -163,6 +164,18 @@ describe('Evaluator', () => {
       TypeChecker.typeCheck(typeEnv, expression);
       const value = Evaluator.evaluate(context, expression);
       expect(value.get('value')).toBe(true);
+    });
+
+    it('should evaluate assignment', () => {
+      const expression = new Assignment('a', '=', new BooleanLiteral('true'));
+
+      const obj = new Obj();
+      obj.set('a', false);
+      context.self = obj;
+
+      const value = Evaluator.evaluate(context, expression);
+      expect(value.get('value')).toBe(undefined);
+      context.self = undefined;
     });
 
     it('should evaluate an undefined literal', () => {
