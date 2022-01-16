@@ -17,7 +17,7 @@
 
 ## Documentation
 
-Have a look in the [examples](https://github.com/maxbarsukov/waddle/tree/master/docs) directory to learn more.
+Have a look in the [examples](https://github.com/maxbarsukov/waddle/tree/master/examples) directory to learn more.
 
 ## Installation
 
@@ -268,7 +268,7 @@ IO.println(b.b()) // B@2
 IO.println(b.b().b().b().b().b()) // B@3
 ```
 
-Lists: [examples/list.waddle](https://github.com/maxbarsukov/waddle/tree/master/docs)
+Lists: [examples/list.waddle](https://github.com/maxbarsukov/waddle/blob/master/examples/list.waddle)
 
 ## Building
 
