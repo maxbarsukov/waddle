@@ -270,6 +270,37 @@ IO.println(b.b().b().b().b().b()) // B@3
 
 Lists: [examples/list.waddle](https://github.com/maxbarsukov/waddle/blob/master/examples/list.waddle)
 
+Module system:
+```kotlin
+// dir/my_module.waddle
+// Use `export` keyword to export class
+export class A {
+  def a(): Int = 42
+}
+
+export class B {
+  def b(): Int = 13
+}
+
+// main.waddle
+import A, B from "./dir/my_module"
+// or
+// import A, B from "./dir/my_module.waddle"
+// or
+// import A, B from "./dir" // to import all files recursively
+
+IO.println(new A().a()) // 42
+IO.println(new B().b()) // 13
+```
+
+Builtin modules:
+```
+import LinkedList from "collections/list"
+// or just ...`from "collections"`
+
+IO.println(new LinkedList()) // []
+```
+
 ## Building
 
 ### Pre-reqs
