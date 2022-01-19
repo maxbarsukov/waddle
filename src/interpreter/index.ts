@@ -1,11 +1,16 @@
-import * as fs from 'fs';
+import fs from 'fs';
+import path from 'path';
+
 import * as process from 'process';
 import * as readline from 'readline';
 
 import {
   FunctionCall,
   Program,
-  Reference, Assignment,
+  Reference,
+  Assignment,
+  Import,
+  Class,
 } from '../ast';
 
 import getRuntime, {
@@ -27,6 +32,7 @@ import Evaluator from './Evaluator';
 import Symbol from '../semantic/Symbol';
 import TypeChecker from '../semantic/TypeChecker';
 import TypeEnvironment from '../semantic/TypeEnvironment';
+import Report from '../utils/Report';
 
 export default class Interpreter {
   typeEnvironment: TypeEnvironment;
@@ -177,6 +183,8 @@ export default class Interpreter {
         return this.injectClass(input);
       case TokenType.Var:
         return this.injectProperty(input);
+      case TokenType.Import:
+        return this.injectImport(input);
       case TokenType.Def:
         return this.injectFunction(input);
       default:
@@ -232,6 +240,27 @@ export default class Interpreter {
 
     this.context.addClass(klass);
     return `defined class ${klass.name}`;
+  }
+
+  injectImport(input: string) {
+    const parser = new Parser(input);
+    const imp = parser.parseImport();
+    const classes = this.getClassesFromImport(imp);
+
+    classes.forEach(klass => {
+      this.typeEnvironment.addClass(klass);
+
+      try {
+        TypeChecker.typeCheckClass(this.typeEnvironment, klass);
+      } catch (e) {
+        this.typeEnvironment.removeClass(klass.name);
+        throw e;
+      }
+
+      this.context.addClass(klass);
+    });
+
+    return `imported classes ${classes.map(kl => kl.name).join(', ')}`;
   }
 
   injectProperty(input: string) {
@@ -344,5 +373,77 @@ export default class Interpreter {
       this.typeEnvironment.addClass(cl);
       this.context.addClass(cl);
     });
+  }
+
+  getClassesFromImport(imp: Import) {
+    const files = this.getFilesForImport(imp);
+    const importClassNames = imp.classNames;
+
+    const classes: Class[] = [];
+    const classNames: string[] = [];
+    files.forEach(file => {
+      const newClasses = this.loadFile(file).classes.filter(klass => klass.isExported);
+      classNames.push(...newClasses.map(klass => klass.name));
+      classes.push(...newClasses);
+    });
+
+    importClassNames.forEach(className => {
+      if (!classNames.includes(className)) {
+        throw new Error(Report.error({
+          message:
+            `No class ${className} exported from ${imp.source}.\nFound: ${classNames.join(', ')}.`,
+          pos: {
+            line: imp.line,
+            column: imp.column,
+          },
+        }));
+      }
+    });
+
+    return classes;
+  }
+
+  getFilesForImport(imp: Import) {
+    const pathElements = imp.source.split('/');
+
+    let filePath;
+    if (imp.isBuiltin()) {
+      filePath = path.join(__dirname, 'stdlib', ...pathElements);
+    } else {
+      filePath = path.join(process.cwd(), ...pathElements);
+    }
+
+    if (!fs.existsSync(filePath) && !fs.existsSync(`${filePath}.waddle`)) {
+      throw new Error(Report.error({
+        message: `No such file for import: '${imp.source}' (${filePath}).`,
+        pos: {
+          line: imp.line,
+          column: imp.column,
+        },
+      }));
+    }
+
+    const filePaths: string[] = [];
+    let withExt = false;
+    try {
+      if (fs.lstatSync(filePath)
+        .isDirectory()) {
+        const files = fs
+          .readdirSync(filePath)
+          .filter(fileName => fileName.match(/.*\.(waddle?)/ig));
+        filePaths.concat(files);
+      } else {
+        withExt = true;
+      }
+    } catch {
+      withExt = true;
+    }
+
+    if (withExt) {
+      if (!filePath.endsWith('.waddle')) filePath += '.waddle';
+      filePaths.push(filePath);
+    }
+
+    return filePaths;
   }
 }
