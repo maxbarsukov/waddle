@@ -121,8 +121,8 @@ describe('Lexer', () => {
     describe('recognizes keywords', () => {
       const testStrings = [
         'abstract', 'class', 'def',
-        'else', 'extends', 'false',
-        'final', 'for', 'in',
+        'else', 'export', 'extends', 'false',
+        'final', 'for', 'from', 'import', 'in',
         'if', 'let', 'new', 'null',
         'override', 'private', 'protected',
         'return', 'super', 'to',
@@ -290,6 +290,20 @@ describe('Lexer', () => {
       expect(tokens[18].type).toBe(TokenType.Newline);
 
       expect(tokens[19].type).toBe(TokenType.RightBrace);
+    });
+
+    it('should properly tokenize an import statement', () => {
+      const lexer = new Lexer('import List, Array from "collections"');
+      const tokens = lexer.tokenize();
+
+      expect(tokens.length).toBe(6);
+
+      expect(tokens[0].type).toBe(TokenType.Import);
+      expect(tokens[1].type).toBe(TokenType.Identifier);
+      expect(tokens[2].type).toBe(TokenType.Comma);
+      expect(tokens[3].type).toBe(TokenType.Identifier);
+      expect(tokens[4].type).toBe(TokenType.From);
+      expect(tokens[5].type).toBe(TokenType.String);
     });
   });
 });
