@@ -1,0 +1,139 @@
+export class Node(data: Object) {
+  var next: Node = null
+
+  def data(): Object = data
+
+  def setData(e: Object) = data = e
+
+  def next(): Node = next
+
+  def setNext(n: Node) = next = n
+
+  def add(e: Object): Node = {
+    let node = this in {
+      while (node.next() != null) node = node.next()
+      node.setNext(new Node(e))
+    }
+    this
+  }
+
+  def get(index: Int): Object = {
+    if (index < 0) null
+    else {
+      let i = 0, node = this in {
+        while (i < index && node != null) {
+          i += 1
+          node = node.next()
+        }
+        if (node != null) node.data() else null
+      }
+    }
+  }
+
+  def set(index: Int, e: Object) = {
+    if (index >= 0) {
+      let i = 0, node = this in {
+        while (i < index && node != null) {
+          i += 1
+          node = node.next()
+        }
+
+        if (node != null) node.setData(e)
+      }
+    }
+  }
+
+  def removeAt(index: Int): Object = {
+    if (index < 0) null
+    else {
+      let i = 0, node = this in {
+        while (i < index - 1 && node != null) {
+          i += 1
+          node = node.next()
+        }
+
+        removeNext(node)
+      }
+    }
+  }
+
+  def indexOf(e: Object): Int = {
+    if (e == null) -1
+    else {
+      let index = 0, node = this in {
+        while (node != null && node.data() != e) {
+          index += 1
+          node = node.next()
+        }
+
+        if (node == null) -1 else index
+      }
+    }
+  }
+
+  def size(): Int = {
+    let size = 0, node = this in {
+      while (node != null) {
+        size += 1
+        node = node.next()
+      }
+      size
+    }
+  }
+
+  private def removeNext(node: Node): Object = {
+    if (node == null) null
+    else {
+      if (node.next() != null) {
+        let data = node.next().data() in {
+          node.setNext(node.next().next())
+          data
+        }
+      }
+    }
+  }
+
+  override def toString(): String = {
+    let str = "[", node = this in {
+      while (node.next() != null) {
+        str += node.data() + ", "
+        node = node.next()
+      }
+      str + node.data() + "]"
+    }
+  }
+}
+
+
+export class LinkedList {
+  var head: Node = new Node("head")
+
+  def add(e: Object): LinkedList = {
+    head.add(e)
+    this
+  }
+
+  def size(): Int = if (head.next() == null) 0 else head.next().size()
+
+  def isEmpty(): Bool = head.next() == null
+
+  def get(index: Int): Object = if (head.next() == null) null else head.next().get(index)
+
+  def set(index: Int, e: Object) = if (head.next() != null) head.next().set(index, e)
+
+  def indexOf(e: Object): Int = if (head.next() == null) -1 else head.next().indexOf(e)
+
+  def removeAt(index: Int): Object = if (index == 0) removeFront() else head.next().removeAt(index)
+
+  private def removeFront(): Object = {
+    if (head.next() == null) null
+    else {
+      let data = head.next().data() in {
+        head.setNext(head.next().next())
+        data
+      }
+    }
+  }
+
+  override def toString(): String = if (head.next() == null) "[]" else head.next().toString()
+}
