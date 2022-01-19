@@ -10,6 +10,7 @@ import {
   Function,
   FunctionCall,
   IfElse,
+  Import,
   Initialization,
   IntegerLiteral,
   Let,
@@ -151,6 +152,19 @@ describe('Parser', () => {
 
         expect(expression.body.isIntegerLiteral()).toBe(true);
         expect((expression.body as IntegerLiteral).value).toBe('42');
+      });
+
+      it('should parse an import expression', () => {
+        const parser = new Parser('import List, Array from "collections"');
+        const expression = parser.parseExpression() as Import;
+
+        expect(expression.isImport()).toBe(true);
+
+        expect(expression.source).toBe('collections');
+        expect(expression.isBuiltin()).toBe(true);
+
+        expect(expression.classNames[0]).toBe('List');
+        expect(expression.classNames[1]).toBe('Array');
       });
 
       it('should parse a let expression', () => {
@@ -360,6 +374,7 @@ describe('Parser', () => {
       const klass = parser.parseClass() as Class;
       expect(klass.isClass()).toBe(true);
       expect(klass.name).toBe('Fraction');
+      expect(klass.isExported).toBe(false);
 
       const parameters = klass.parameters as Formal[];
       expect(parameters.length).toBe(2);
@@ -385,6 +400,15 @@ describe('Parser', () => {
       expect(functions[0].name).toBe('gcd');
       expect(functions[1].name).toBe('toString');
       expect(functions[1].override).toBe(true);
+    });
+
+    it('should parse an exported class', () => {
+      const parser = new Parser('export class A {}');
+
+      const klass = parser.parseClass() as Class;
+      expect(klass.isClass()).toBe(true);
+      expect(klass.name).toBe('A');
+      expect(klass.isExported).toBe(true);
     });
   });
 

@@ -12,6 +12,7 @@ import {
   Function,
   FunctionCall,
   IfElse,
+  Import,
   Initialization,
   IntegerLiteral,
   Let,
@@ -133,6 +134,8 @@ export default class Parser {
       } else {
         value = new Reference(this.expect(TokenType.Identifier).value);
       }
+    } else if (this.accept(TokenType.Import)) {
+      value = this.parseImport();
     }
 
     if (value === undefined) {
@@ -194,7 +197,9 @@ export default class Parser {
     const token = this.currentToken;
     let definition = null;
 
-    if (this.accept(TokenType.Class)) definition = this.parseClass();
+    if (this.accept(TokenType.Class)
+      || this.accept(TokenType.Export)
+    ) definition = this.parseClass();
     if (this.accept(TokenType.Override)
       || this.accept(TokenType.Def)
     ) definition = this.parseFunction();
@@ -224,6 +229,12 @@ export default class Parser {
   }
 
   parseClass() {
+    let isExported = false;
+    if (this.accept(TokenType.Export)) {
+      this.expect(TokenType.Export);
+      isExported = true;
+    }
+
     const classToken = this.expect(TokenType.Class);
     const name = this.expect(TokenType.Identifier).value;
 
@@ -249,6 +260,8 @@ export default class Parser {
       superClass,
       superClassArgs,
     );
+    klass.isExported = isExported;
+
     this.parseClassBody(klass);
 
     klass.line = classToken.pos.line;
@@ -327,6 +340,24 @@ export default class Parser {
     }
 
     return new IfElse(condition, thenBranch, elseBranch);
+  }
+
+  parseImport() {
+    this.expect(TokenType.Import);
+
+    const classNames: string[] = [];
+    do {
+      if (this.accept(TokenType.Comma)) {
+        this.expect(TokenType.Comma);
+      }
+
+      classNames.push(this.expect(TokenType.Identifier).value);
+    } while (this.accept(TokenType.Comma));
+
+    this.expect(TokenType.From);
+    const source = this.expect(TokenType.String).value.slice(1, -1);
+
+    return new Import(source, classNames);
   }
 
   parseInitializations() {
