@@ -271,7 +271,7 @@ IO.println(b.b().b().b().b().b()) // B@3
 Lists: [examples/list.waddle](https://github.com/maxbarsukov/waddle/blob/master/examples/list.waddle)
 
 Module system:
-```kotlin
+```javascript
 // dir/my_module.waddle
 // Use `export` keyword to export class
 export class A {
@@ -294,7 +294,7 @@ IO.println(new B().b()) // 13
 ```
 
 Builtin modules:
-```
+```python
 import LinkedList from "collections/list"
 // or just ...`from "collections"`
 
