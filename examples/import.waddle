@@ -1,0 +1,5 @@
+import LinkedList from "collections/list"
+
+var list = new LinkedList()
+list.add(1).add(2)
+IO.println(list) // [1, 2]
