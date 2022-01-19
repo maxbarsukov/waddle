@@ -406,11 +406,17 @@ export default class Interpreter {
   getFilesForImport(imp: Import) {
     const pathElements = imp.source.split('/');
 
-    let filePath;
+    let filePath: string;
     if (imp.isBuiltin()) {
       filePath = path.join(__dirname, 'stdlib', ...pathElements);
     } else {
-      filePath = path.join(process.cwd(), ...pathElements);
+      const args = process.argv.slice(2);
+      if (args[0]) {
+        const dir = path.dirname(fs.realpathSync(args[0]));
+        filePath = path.join(dir, pathElements.at(-1)!);
+      } else {
+        filePath = path.join(process.cwd(), ...pathElements);
+      }
     }
 
     if (!fs.existsSync(filePath) && !fs.existsSync(`${filePath}.waddle`)) {
@@ -431,7 +437,7 @@ export default class Interpreter {
         const files = fs
           .readdirSync(filePath)
           .filter(fileName => fileName.match(/.*\.(waddle?)/ig));
-        filePaths.concat(files);
+        filePaths.push(...files.map(file => path.join(filePath, file)));
       } else {
         withExt = true;
       }
