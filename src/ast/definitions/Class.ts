@@ -13,6 +13,7 @@ export default class Class extends Definition {
   superClassArgs: Expression[];
   properties: Property[];
   functions: Function[];
+  isExported: boolean;
 
   constructor(
     name: string,
@@ -21,6 +22,7 @@ export default class Class extends Definition {
     superClassArgs: Expression[] = [],
     properties: Property[] = [],
     functions: Function[] = [],
+    isExported = false,
   ) {
     super();
     this.name = name;
@@ -29,6 +31,7 @@ export default class Class extends Definition {
     this.superClassArgs = superClassArgs;
     this.properties = properties;
     this.functions = functions;
+    this.isExported = isExported;
   }
 
   isClass() {

@@ -17,4 +17,8 @@ describe('Expression', () => {
   it('#isLazy', () => {
     expect(expression.isLazy()).toBe(false);
   });
+
+  it('#isImport', () => {
+    expect(expression.isImport()).toBe(false);
+  });
 });

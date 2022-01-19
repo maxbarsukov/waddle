@@ -14,6 +14,7 @@ export { default as Cast } from './expressions/Cast';
 export { default as ConstructorCall } from './expressions/ConstructorCall';
 export { default as FunctionCall } from './expressions/FunctionCall';
 export { default as IfElse } from './expressions/IfElse';
+export { default as Import } from './expressions/Import';
 export { default as Initialization } from './expressions/Initialization';
 export { default as LazyExpression } from './expressions/LazyExpression';
 export { default as Let } from './expressions/Let';

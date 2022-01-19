@@ -61,6 +61,10 @@ export default class Expression extends Node {
     return false;
   }
 
+  isImport() {
+    return false;
+  }
+
   isIntegerLiteral() {
     return false;
   }
