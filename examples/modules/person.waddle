@@ -1,0 +1,13 @@
+export class Person(firstname: String, lastname: String) {
+  def firstname(): String = {
+    firstname
+  }
+
+  def setFirstname(name: String) = {
+    firstname = name
+  }
+
+  override def toString(): String = {
+    "Person(" + firstname + ", " + lastname + ")"
+  }
+}

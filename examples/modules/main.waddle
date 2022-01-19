@@ -1,0 +1,8 @@
+import Person from "./person.waddle"
+
+var person = new Person("John", "Doe")
+
+IO.println(person) // Person(John, Doe)
+
+person.setFirstname("Max")
+IO.println(person.firstname()) // Max
